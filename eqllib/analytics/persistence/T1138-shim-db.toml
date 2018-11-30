@@ -1,0 +1,23 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies the installation of custom Application Compatibility Shim databases."
+id = "0e9a0a32-acf4-4969-9828-215a692c436e"
+name = "Installing Custom Shim Databases"
+os = "windows"
+tactics = ["Persistence", "Privilege Escalation"]
+tags = ["atomicblue"]
+techniques = ["T1138"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where key_path == "*\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Custom\\*.sdb"
+  and not event of [process where subtype.create and
+
+                      // Ignore legitimate usage of sdbinst.exe
+                      not (process_name == "sdbinst.exe" and parent_process_name == "msiexec.exe")
+                   ]
+'''

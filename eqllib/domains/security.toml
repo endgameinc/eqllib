@@ -1,0 +1,66 @@
+name = "security"
+fields = [
+  # Common Fields
+  "pid",
+  "process_name",
+  "process_path",
+  "unique_pid",
+  "user",
+  "user_domain",
+  "user_name",
+  "user_sid",
+]
+
+[events.file]
+fields = [
+  "file_name",
+  "file_path",
+]
+
+[events.file.enum]
+subtype = ["create", "modify", "delete", "overwrite"]
+
+[events.image_load]
+fields = [
+  "image_path",
+  "image_name",
+]
+
+[events.process]
+fields = [
+  "command_line",
+  "exit_code",
+  "logon_id",
+  "parent_process_name",
+  "parent_process_path",
+  "ppid",
+  "unique_ppid",
+]
+
+[events.process.enum]
+subtype = ["create", "terminate"]
+
+[events.network]
+fields = [
+  "destination_address",
+  "destination_port",
+  "protocol",
+  "source_address",
+  "source_port",
+  "total_in_bytes",
+  "total_out_bytes",
+]
+
+[events.network.enum]
+subtype = ["incoming", "outgoing", "disconnect"]
+
+[events.registry]
+fields = [
+  "registry_data",
+  "registry_key",
+  "registry_path",
+  "registry_value",
+]
+
+[events.registry.enum]
+registry_type = ["dword", "qword", "string", "expand_string", "multi_string", "binary"]

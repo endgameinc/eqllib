@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = """
+The tool NetShell allows for the creation of helper DLLs, which are loaded into ``netsh.exe`` every time it executes.
+This is used by attackers to establish persistence.
+"""
+id = "5f9a71f4-f5ef-4d35-aff8-f67d63d3c896"
+name = "Persistence via NetSh Key"
+os = "windows"
+tactics = ["Persistence"]
+tags = ["atomicblue"]
+techniques = ["T1128"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where key_path == "*\\Software\\Microsoft\\NetSh\\*"
+'''

@@ -1,0 +1,30 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect an interactive AT job, which may be used as a form of privilege escalation."
+id = "d8db43cf-ed52-4f5c-9fb3-c9a4b95a0b56"
+name = "Interactive AT Job"
+notes = """
+As of Windows 8, the ``at.exe`` command was deprecated and prints the error message
+    The AT command has been deprecated. Please use schtasks.exe instead.
+"""
+os = "windows"
+references = [
+  "https://blogs.technet.microsoft.com/supportingwindows/2013/07/05/whats-new-in-task-scheduler-for-windows-8-server-2012/"
+]
+tactics = ["Privilege Escalation"]
+tags = ["atomicblue"]
+techniques = ["T1053"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+process where subtype.create and
+  process_name == "at.exe" and command_line == "* interactive *"
+
+'''
+
+

@@ -1,0 +1,19 @@
+[analytic.metadata]
+updated_date = "11/30/2018"
+confidence = "low"
+tactics = ["Lateral Movement", "Execution"]
+description = "Identifies use of ``wmic.exe`` to run commands on remote hosts."
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+techniques = ["T1047"]
+os = "windows"
+id = "07b1481c-2a20-4274-a64e-effcd40941a5"
+categories = ["detect"]
+name = "Remote Execution via WMIC"
+
+[analytic]
+query = '''
+process where subtype.create and process_name == "wmic.exe" and
+  (command_line == "* /node:*" or command_line == "* -node:*") and
+  (command_line == "* *process* call *")
+'''

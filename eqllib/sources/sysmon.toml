@@ -1,0 +1,78 @@
+name = "Microsoft Sysmon"
+os_types = ["windows"]
+strict = true
+domain = "security"
+filter_query = true
+
+[timestamp]
+field = "UtcTime"
+format = "%Y-%m-%d %H:%M:%S.%f"
+
+[fields.mapping]
+pid = "number(ProcessId)"
+process_name = 'baseName(Image)'
+process_path = "Image"
+unique_pid = "ProcessGuid"
+user = "User"
+user_domain = 'split(User, "\\", 0)'
+user_name = 'split(User, "\\", 1)'
+# user_sid - not provided by sysmon
+
+[events.image_load]
+filter = "EventId == 7"
+
+[events.image_load.mapping]
+image_path = "ImageLoaded"
+image_name = "baseName(ImageLoaded)"
+
+[events.network]
+filter = "EventId == 3"
+
+[events.network.enum.subtype]
+incoming = "Initiated == 'false'"
+outgoing = "Initiated == 'true'"
+
+[events.network.mapping]
+destination_address = "DestinationIp"
+destination_port = "DestinationPort"
+protocol = "Protocol"
+source_address = "SourceIp"
+source_port = "SourcePort"
+# total_in_bytes - not provided by sysmon
+# total_out_bytes - not provided by sysmon
+
+[events.file]
+filter = "EventId in (11, 15)"
+
+[events.file.mapping]
+file_name = "baseName(TargetFilename)"
+file_path = "TargetFilename"
+
+[events.process]
+filter = "EventId in (1, 5)"
+
+[events.process.enum.subtype]
+create = "EventId == 1"
+terminate = "EventId == 5"
+
+[events.process.mapping]
+command_line = "CommandLine"
+# exit_code - not provided by sysmon
+logon_id = "number(LogonId)"
+parent_process_name = "baseName(ParentImage)"
+parent_process_path = "ParentImage"
+ppid = "number(ParentProcessId)"
+unique_ppid = "ParentProcessGuid"
+
+
+[events.registry]
+filter = "EventId in (12, 13, 14)"
+
+# sysmon can't distinguish between registry data types
+# [events.registry.enum.registry_type]
+
+[events.registry.mapping]
+# registry_data - missing from sysmon
+registry_key = "dirName(TargetObject)"
+registry_value = "baseName(TargetObject)"
+registry_path = "TargetObject"

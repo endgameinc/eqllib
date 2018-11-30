@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies use of the fsutil command to delete the volume USNJRNL. This technique is used by attackers to eliminate evidence of files created during post-exploitation activities."
+id = "c91f422a-5214-4b17-8664-c5fcf115c0a2"
+name = "Delete Volume USN Journal with fsutil"
+os = "windows"
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1070"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+    process_name == "fsutil.exe" and command_line == "* usn *" and command_line == "* deletejournal*"
+'''

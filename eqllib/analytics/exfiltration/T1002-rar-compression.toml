@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect compression of data into a RAR file using the ``rar.exe`` utility."
+id = "1ec33c93-3d0b-4a28-8014-dbdaae5c60ae"
+name = "Command-Line Creation of a RAR file"
+os = "windows"
+tactics = ["Exfiltration"]
+tags = ["atomicblue"]
+techniques = ["T1002"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+process where subtype.create and process_name == "rar.exe" and
+  command_line == "* a *"
+'''

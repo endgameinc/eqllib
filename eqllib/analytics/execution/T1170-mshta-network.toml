@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies suspicious ``mshta.exe`` commands that make outbound network connections."
+id = "6bc283c4-21f2-4aed-a05c-a9a3ffa95dd4"
+name = "Mshta Network Connections"
+os = "windows"
+tactics = ["Execution", "Defense Evasion", "Command and Control"]
+tags = ["atomicblue"]
+techniques = ["T1170"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+sequence by unique_pid
+  [process where subtype.create and process_name == "mshta.exe" and command_line == "*javascript*"]
+  [network where process_name == "mshta.exe"]
+'''

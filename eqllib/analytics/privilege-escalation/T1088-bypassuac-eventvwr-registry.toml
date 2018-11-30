@@ -1,0 +1,25 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies preparation for User Account Control (UAC) bypass via Event Viewer registry hijacking.  Attackers bypass UAC to stealthily execute code with elevated permissions."
+id = "f90dd84d-6aa1-4ffd-8f0e-933f51c20fbe"
+name = "Registry Preparation of Event Viewer UAC Bypass"
+os = "windows"
+tactics = ["Privilege Escalation"]
+tags = ["atomicblue"]
+techniques = ["T1088"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where
+  key_path == "*\\MSCFile\\shell\\open\\command\\" and
+
+  // Ignore cases where the original avalue is restored
+  bytes_written_string != '*\\system32\\mmc.exe \"%1\"*'
+
+  // SYSTEM will never need to bypass uac
+  and not user_sid in ("S-1-5-18", "S-1-5-19", "S-1-5-20")
+'''

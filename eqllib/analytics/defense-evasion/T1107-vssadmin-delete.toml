@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies suspicious use of vssadmin.exe to delete volume shadow copies."
+id = "d3a327b6-c517-43f2-8e97-1f06b7370705"
+name = "Volume Shadow Copy Deletion via VssAdmin"
+os = "windows"
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1107"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+    process_name == "vssadmin.exe" and command_line == "*delete* *shadows*"
+'''

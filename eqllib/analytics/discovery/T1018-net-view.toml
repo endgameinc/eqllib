@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies attempts to enumerate hosts in a network using the built-in Windows ``net.exe`` tool."
+id = "b8a94d2f-dc75-4630-9d73-1edc6bd26fff"
+name = "Windows Network Enumeration"
+os = "windows"
+tactics = ["Discovery"]
+tags = ["atomicblue"]
+techniques = ["T1018"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+    process_name == "net.exe" and command_line == "* view*" and command_line != "*\\\\*"
+'''

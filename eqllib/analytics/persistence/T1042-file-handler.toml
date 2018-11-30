@@ -1,0 +1,23 @@
+[analytic.metadata]
+categories = ["hunt"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect changes to default File Association handlers."
+id = "26f0ebab-b315-492d-a5be-aa665fba2f35"
+name = "Change Default File Association"
+os = "windows"
+tactics = ["Persistence"]
+tags = ["atomicblue"]
+techniques = ["T1042"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+sequence by unique_pid with maxspan=1s
+    [ registry where key_path == "*\\SOFTWARE\\Classes\\*\\*"]
+    [ registry where key_path == "*\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\GlobalAssocChangedCounter"]
+
+| unique_count process_name, key_path
+'''

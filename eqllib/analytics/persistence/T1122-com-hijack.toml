@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies COM hijacking using the script object host ``scrobj.dll``, which allows for stealthy execution of scripts in legitimate processes."
+id = "9d556fd6-76a3-45d5-9d8d-cb8edf0282f2"
+name = "COM Hijack via Script Object"
+os = "windows"
+tactics = ["Persistence", "Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1122"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where
+  key_path == "*_Classes\\CLSID\\{*}\\InprocServer32*" and
+  (bytes_written_string == "scrobj*" or bytes_written_string == "*\\scrobj*")
+'''

@@ -1,0 +1,18 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = 'Detect modification of Windows logon scripts stored in ``HKCU\Environment\UserInitMprLogonScript`` and trigger when a user logs in.'
+id = "54fff7e8-f81d-4169-b820-4cbff0133e2d"
+name = "Logon Scripts with UserInitMprLogonScript"
+os = "windows"
+tactics = ["Persistence"]
+tags = ["atomicblue"]
+techniques = ["T1037"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where key_path == "*\\Environment\\UserInitMprLogonScript"
+'''

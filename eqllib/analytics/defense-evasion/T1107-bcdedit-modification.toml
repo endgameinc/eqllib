@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies use of the bcdedit command to delete boot configuration data. This tactic is sometimes used as by malware or an attacker as a destructive technique."
+id = "c4732632-9c1d-4980-9fa8-1d98c93f918e"
+name = "Modification of Boot Configuration"
+os = "windows"
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1107"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name == "bcdedit.exe" and command_line == "*set *" and
+  (command_line == "* bootstatuspolicy *ignoreallfailures*" or command_line == "* recoveryenabled* no*")
+'''

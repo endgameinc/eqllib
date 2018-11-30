@@ -1,0 +1,25 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = """Detect the unloading of the Sysinternals Sysmon filter driver via the ``unload`` command line parameter."""
+id = "1261d02a-ee99-4954-8404-8376a8d441b2"
+name = "Unload Sysmon Filter Driver with fltmc.exe"
+notes = """
+The Sysmon driver can be installed with various service names. The analytic should be changed
+to reflect the installed service name if Sysmon is installed with a different name.
+"""
+os = "windows"
+references = []
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1089"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+process where subtype.create and
+  process_name == "fltmc.exe" and command_line == "* unload *sysmon*"
+'''

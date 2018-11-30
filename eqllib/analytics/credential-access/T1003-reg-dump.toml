@@ -1,0 +1,22 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies usage of ``reg.exe`` to export registry hives which contain the SAM and LSA secrets."
+id = "aed95fc6-5e3f-49dc-8b35-06508613f979"
+name = "SAM Dumping via Reg.exe"
+os = "windows"
+tags = ["atomicblue"]
+tactics = ["Credential Access"]
+techniques = ["T1003"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name == "reg.exe" and
+  (command_line == "* save *" or command_line == "* export *") and
+  (command_line == "*hklm*" or command_line == "*hkey_local_machine*" ) and
+  (command_line == "*\\sam *" or command_line == "*\\security *" or command_line == "*\\system *")
+'''

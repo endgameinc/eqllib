@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect download of BITS jobs via PowerShell."
+id = "ec5180c9-721a-460f-bddc-27539a284273"
+name = "Suspicious Bitsadmin Job via PowerShell"
+os = "windows"
+tactics = ["Defense Evasion", "Persistence"]
+tags = ["atomicblue"]
+techniques = ["T1197"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+process where subtype.create and
+  process_name == "powershell.exe" and command_line == "*Start-BitsTransfer*"
+'''

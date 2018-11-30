@@ -1,0 +1,28 @@
+[analytic.metadata]
+categories = ["detect"]
+contributors = ["Endgame"]
+confidence = "medium"
+created_date = "11/30/2018"
+id = "dd2eee76-9b44-479e-9860-435357e82db8"
+os = "windows"
+tactics = ["Persistence"]
+tags = ["atomicblue"]
+techniques = ["T1180"]
+updated_date = "11/30/2018"
+references = ["https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1180/T1180.yaml"]
+name = "Persistence via Screensaver"
+description = "Detect persistence via screensaver when attacker writes payload to registry within screensaver key path."
+
+[analytic]
+query = '''
+
+registry where key_path == "*\\Control Panel\\Desktop\\SCRNSAVE.EXE"
+
+  // Ignore when the screensaver is legitimately set via the dialog
+  and not event of [ process where subtype.create
+                      and process_path == "*\\system32\\rundll32.exe"
+                      and parent_process_path == "*\\explorer.exe"
+                      and command_line == "* shell32.dll,Control_RunDLL desk.cpl,ScreenSaver,*"
+                    ]
+
+'''

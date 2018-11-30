@@ -1,0 +1,24 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = """
+Identifies use of various commands to query a remote system's time.
+This technique may be used before executing a scheduled task or to discover the time zone of a target system
+"""
+id = "fcdb99c2-ac3c-4bde-b664-4b336329bed2"
+name = "Discovery of a Remote System's Time"
+os = "windows"
+references = []
+tactics = ["Discovery"]
+tags = ["atomicblue"]
+techniques = ["T1124"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and process_name == "net.exe" and
+  command_line == "* time *" and command_line == "*\\\\*"
+| unique parent_process_path, command_line
+'''

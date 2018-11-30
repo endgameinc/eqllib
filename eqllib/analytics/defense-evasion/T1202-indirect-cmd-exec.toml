@@ -1,0 +1,25 @@
+[analytic.metadata]
+categories = ["hunt"]
+contributors = ["Endgame"]
+confidence = "medium"
+created_date = "11/30/2018"
+description = "Detect indirect command execution via Program Compatibility Assistant ``pcalua.exe`` or ``forfiles.exe``."
+id = "884a7ccd-7305-4130-82d0-d4f90bc118b6"
+name = "Indirect Command Execution"
+notes = "These processes can be used in legitimate scripts, so ``| unique_count`` and ``| filter`` are used to focus on outliers as opposed to commonly seen artifacts."
+os = "windows"
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1202"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+process where subtype.create and
+  parent_process_name in ("pcalua.exe", "forfiles.exe")
+| unique_count command_line, process_name
+| filter count < 10
+'''
+
+

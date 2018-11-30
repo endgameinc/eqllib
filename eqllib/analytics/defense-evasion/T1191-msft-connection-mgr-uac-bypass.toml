@@ -1,0 +1,22 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect child processes of automatically elevated instances of Microsoft Connection Manager Profile Installer (``cmstp.exe``)."
+id = "e584f1a1-c303-4885-8a66-21360c90995b"
+name = "Bypass UAC via CMSTP"
+os = "windows"
+tactics = ["Defense Evasion", "Execution"]
+tags = ["atomicblue"]
+techniques = ["T1191", "T1088"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+sequence
+  [ process where subtype.create and
+      process_name == "cmstp.exe" and command_line =="*/s*" and command_line =="*/au*"] by unique_pid
+  [ process where subtype.create ] by unique_ppid
+'''

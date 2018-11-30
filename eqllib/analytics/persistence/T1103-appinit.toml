@@ -1,0 +1,26 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = """
+Detect registry modifications of the AppInit_Dlls key, which is used by attackers to maintain persistence.
+AppInit DLLs are loaded into every process that users the common library ``user32.dll``.
+"""
+id = "822dc4c5-b355-4df8-bd37-29c458997b8f"
+name = "Persistence via AppInit DLL"
+os = "windows"
+tactics = ["Persistence", "Privilege Escalation"]
+tags = ["atomicblue"]
+techniques = ["T1103"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where wildcard(key_path,
+    "*\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\AppInit_Dlls",
+    "*\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\AppInit_Dlls"
+  )
+  and not wildcard(process_path, "*\\system32\\msiexec.exe", "*\\syswow64\\msiexec.exe")
+| unique bytes_written_string
+'''

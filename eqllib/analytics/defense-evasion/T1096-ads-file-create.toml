@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect suspicious creation or modification of NTFS Alternate Data Streams."
+id = "6624038b-05e6-4f9b-9830-346af38de870"
+name = "Suspicious ADS File Creation"
+os = "windows"
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1096"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+
+file where
+  file_name == "*:*" and (file_name == "*.dll*" or file_name == "*.exe*")
+
+'''

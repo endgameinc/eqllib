@@ -1,0 +1,25 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies enumeration of mounted shares with the builtin Windows tool ``net.exe``."
+id = "9b3dd402-891c-4c4d-a662-28947168ce61"
+name = "Mounting Hidden Shares"
+os = "windows"
+references = []
+tactics = ["Lateral Movement"]
+tags = ["atomicblue"]
+techniques = ["T1077"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+  (process_name == "net.exe" or (process_name == "net1.exe" and parent_process_name != "net.exe")) and
+  (command_line == "* use" or command_line == "* use *") and
+
+  // since this command is looking for discovery only, we want to ignore mounting shares
+  command_line == "* \\\\*"
+| unique parent_process_path, command_line, user_name
+'''

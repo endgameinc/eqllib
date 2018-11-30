@@ -1,0 +1,71 @@
+.wy-nav-side {
+    /* background: #d0d0d0; */
+    /* background: #A7ADB5; */
+    /* background: #eaeaea; */
+    background: #D0D0D0;
+}
+
+
+.wy-grid-for-nav {
+    min-height: 100%;
+}
+
+@media screen and (min-width: 1100px) {
+    .wy-nav-content-wrap {
+        background: #eaeaea;
+    }
+
+    .wy-nav-content {
+        margin: 0;
+        background: #fcfcfc
+    }
+}
+
+.wy-body-for-nav {
+    background: #eaeaea;
+}
+
+.wy-menu {
+    color: #454545;
+}
+
+.wy-menu a {
+    color: #454545;
+}
+
+.wy-menu a:hover {
+    color: #A7ADB5;
+    background-color: #454545;
+}
+
+
+.wy-side-nav-search {
+    /* background: #495463; */
+    background: #3b6692;
+}
+
+.wy-nav-content {
+    max-width: unset;
+}
+
+.attack-matrix td p {
+    margin-bottom: 0px;
+}
+
+.attack-matrix a.external {
+    color: #454545;
+    text-decoration: none;
+}
+
+.attack-matrix a.external:hover {
+    text-decoration: underline;
+}
+
+.attack-matrix td, attack-matrix th {
+    /* This originally looked nice, but with the populated analytics, it made it messy */
+    /* white-space: normal !important; */
+}
+
+.analytic-table td p {
+    margin-bottom: 0;
+}

@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Detect the usage of an intermediate service used to launch a SYSTEM-level command via ``cmd.exe`` or ``powershell.exe``."
+id = "dcb72010-c3f5-42bc-bc5e-f4f015aed1e8"
+name = "Execution of a Command via a SYSTEM Service"
+os = "windows"
+tactics = ["Privilege Escalation"]
+tags = ["atomicblue"]  # atomicblue T1035 uses a temporary command, but T1050 launches a legitimate service
+techniques = ["T1035", "T1050"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+registry where
+    key_path == "*\\System\\*ControlSet*\\Services\\*\\ImagePath"
+    and wildcard(bytes_written_string, "*%COMSPEC%*", "*cmd.exe*", "*powershell*", "*cmd *")
+'''

@@ -1,0 +1,35 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies processes launched with suspicious parents."
+id = "3b1b9720-179b-47e2-930e-d3757bbe345e"
+name = "Unusual Child Process"
+os = "windows"
+references = ["https://web.archive.org/web/20140119132337/https://sysforensics.org/2014/01/know-your-windows-processes.html"]
+tactics = ["Defense Evasion", "Execution"]
+techniques = ["T1093", "T1055"]
+updated_date = "11/30/2018"
+
+[analytic]
+query = '''
+process where subtype.create and
+(
+  (process_name == "smss.exe" and not parent_process_name in ("System", "smss.exe")) or
+  (process_name == "csrss.exe" and not parent_process_name in ("smss.exe", "svchost.exe")) or
+  (process_name == "wininit.exe" and parent_process_name != "smss.exe") or
+  (process_name == "winlogon.exe" and parent_process_name != "smss.exe") or
+  (process_name == "lsass.exe" and parent_process_name != "wininit.exe") or
+  (process_name == "LogonUI.exe" and not parent_process_name in ("winlogon.exe", "wininit.exe")) or
+  (process_name == "services.exe" and parent_process_name != "wininit.exe") or
+  (process_name == "svchost.exe" and parent_process_name != "services.exe" and
+      // When a 32-bit DLL is loaded, the syswow64\svchost.exe service will be called
+      not (parent_process_path == "*\\system32\\svchost.exe" and process_path ==  "*\\syswow64\\svchost.exe")
+  ) or
+  (process_name == "spoolsv.exe" and parent_process_name != "services.exe") or
+  (process_name == "taskhost.exe" and not parent_process_name in ("services.exe", "svchost.exe")) or
+  (process_name == "taskhostw.exe" and not parent_process_name in ("services.exe", "svchost.exe")) or
+  (process_name == "userinit.exe" and not parent_process_name in ("dwm.exe", "winlogon.exe"))
+)
+'''
