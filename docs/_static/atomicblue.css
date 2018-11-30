@@ -2,7 +2,7 @@
     /* background: #d0d0d0; */
     /* background: #A7ADB5; */
     /* background: #eaeaea; */
-    background: #D0D0D0;
+    /* background: #D0D0D0; */
 }
 
 
@@ -20,7 +20,7 @@
         background: #fcfcfc
     }
 }
-
+/*
 .wy-body-for-nav {
     background: #eaeaea;
 }
@@ -40,9 +40,9 @@
 
 
 .wy-side-nav-search {
-    /* background: #495463; */
     background: #3b6692;
 }
+*/
 
 .wy-nav-content {
     max-width: unset;
