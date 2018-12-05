@@ -59,7 +59,7 @@ To get *all* Sysmon logs from Windows Event Logs, run the powershell command
 
 .. code-block:: powershell
 
-    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational"} | Get-EventProps | ConvertTo-Json | Out-File -Encoding ASCII -FilePath my-sysmon-data.json
+    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational"} -Oldest | Get-EventProps | ConvertTo-Json | Out-File -Encoding ASCII -FilePath my-sysmon-data.json
 
 .. warning::
     Use this with caution as it will process all events, which may take time and likely generate a large file

@@ -11,27 +11,10 @@ convert-data
 
 The :program:`convert-data` command normalizes data, generating a new JSON file that matches the schema.
 
-.. note::
-    Be aware, that if you attempt to convert data which does not match the specified format, there will be an error. For instance, if data is converted from Sysmon but is missing the UtcTime field, an exception will be raised.
-
-    .. code-block:: console
-
-       $ eqllib convert-data -s "Microsoft Sysmon" non-sysmon-data.json output.json
-       Traceback (most recent call last):
-        ...
-
-             File "eqllib/normalization.py", line 285, in normalize_callback
-               ts = data[self.time_field]
-           KeyError: u'UtcTime'
-
 
 Arguments
 ^^^^^^^^^
 .. program:: convert-data
-
-.. option:: input-json-file
-
-    Path to a JSON file of unnormalized events.
 
 .. option:: output-json-file
 
@@ -46,7 +29,15 @@ Options
 
     Show the help message and exit
 
-.. option:: -s <data-source>
+.. option:: --file, -f
+
+    Path to a JSON file of unnormalized events. Defaults to stdin if not specified
+
+.. option:: --format
+
+    Format for the input file. One of ``json``, ``json.gz``, ``jsonl``, ``jsonl.gz``
+
+.. option:: -s <data-source>, --source <data-source>
 
     Required: the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
 
@@ -80,9 +71,9 @@ Options
 
     Show the help message and exit
 
-.. option:: -s <data-source>
+.. option:: -s <data-source>, --source <data-source>
 
-    Required: the target schema to convert the query into.
+    Required: the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
 
 
 query
@@ -102,10 +93,6 @@ Arguments
 
     Query in EQL syntax that matches the common schema.
 
-.. option:: json-file
-
-    Path to a JSON file of normalized or unnormalized events.
-
 
 Options
 ^^^^^^^
@@ -115,9 +102,17 @@ Options
 
     Show the help message and exit
 
-.. option:: -s <data-source>
+.. option:: --file, -f
 
-    Specify the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
+    Path to a JSON file of unnormalized events. Defaults to stdin if not specified
+
+.. option:: --format
+
+    Format for the input file. One of ``json``, ``json.gz``, ``jsonl``, ``jsonl.gz``
+
+.. option:: -s <data-source>, --source <data-source>
+
+    Required: the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
 
 .. option:: -e <encoding>
 
@@ -136,11 +131,6 @@ Arguments
 ^^^^^^^^^
 .. program:: survey
 
-.. option:: json-file
-
-    Path to a JSON file of normalized or unnormalized events.
-
-
 .. option:: analytic-path [analytic-path, ...]
 
     Path(s) to analytic TOML files or a directory of analytics.
@@ -153,9 +143,18 @@ Options
 
     Show the help message and exit
 
-.. option:: -s <data-source>
 
-    Specify the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
+.. option:: --file, -f
+
+    Path to a JSON file of unnormalized events. Defaults to stdin if not specified
+
+.. option:: --format
+
+    Format for the input file. One of ``json``, ``json.gz``, ``jsonl``, ``jsonl.gz``
+
+.. option:: -s <data-source>, --source <data-source>
+
+    Required: the source schema for the events. (e.g. ``"Microsoft Sysmon"``)
 
 .. option:: -e <encoding>
 

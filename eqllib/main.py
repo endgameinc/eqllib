@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import argparse
-import io
 import json
 import sys
 
@@ -9,6 +8,7 @@ import toml
 from eql import parse_query, EqlError
 from eql.schema import EVENT_TYPE_GENERIC
 from eql.engines import Event
+from eql.utils import stream_stdin_events, stream_file_events
 
 from .loader import Configuration
 from .normalization import NormalizedEngine
@@ -23,6 +23,13 @@ def parse(text):
         sys.exit(2)
 
 
+def stream_events(path, file_format, encoding):
+    if not path:
+        return stream_stdin_events(file_format)
+    else:
+        return stream_file_events(path, file_format, encoding)
+
+
 def convert_query(data_source, query, config):
     """Convert a normalized query to a specific data source."""
     source = config.normalizers[data_source]
@@ -31,23 +38,23 @@ def convert_query(data_source, query, config):
     print(converted)
 
 
-def run_query(data_source, query, input_file, encoding, config):
+def run_query(data_source, query, input_file, file_format, encoding, config):
     """Convert a normalized query to a specific data source."""
     if data_source is None:
         data_source = next(iter(config.domains))
+
     source = config.normalizers[data_source]
     query = parse(query)
     query = config.normalizers[source.domain].normalize_ast(query)
 
-    with io.open(input_file, "rt", encoding=encoding) as f:
-        events = json.load(f)
+    events = stream_events(input_file, file_format, encoding)
 
     engine = NormalizedEngine({'print': True})
     engine.add_query(query)
     engine.stream_events(source.data_normalizer(e) for e in events)
 
 
-def survey_analytics(data_source, input_file, encoding, analytics, count, config):
+def survey_analytics(data_source, input_file, file_format, encoding, analytics, count, config):
     """Convert a normalized query to a specific data source."""
     if data_source is None:
         data_source = next(iter(config.domain_schemas))
@@ -59,8 +66,7 @@ def survey_analytics(data_source, input_file, encoding, analytics, count, config
     domain = config.normalizers[source.domain]
     engine = NormalizedEngine({'print': True})
 
-    with io.open(input_file, "rt", encoding=encoding) as f:
-        events = json.load(f)
+    events = stream_events(input_file, file_format, encoding)
 
     normalized_iter = (source.data_normalizer(e) for e in events)
 
@@ -89,13 +95,12 @@ def survey_analytics(data_source, input_file, encoding, analytics, count, config
         engine.stream_events(normalized_iter)
 
 
-def convert_data(data_source, input_file, output_file, encoding, config):
+def convert_data(data_source, input_file, output_file, encoding, file_format, config):
     """Convert a normalized query to a specific data source."""
     if data_source is None:
         data_source = next(iter(config.domains))
     source = config.normalizers[data_source]
-    with io.open(input_file, "rt", encoding=encoding) as f:
-        events = json.load(f)
+    events = list(stream_events(input_file, file_format, encoding))
 
     print("Found {} events".format(len(events)))
     converted_events = []
@@ -121,30 +126,30 @@ def normalize_main():
     convert_query_parser = subparsers.add_parser('convert-query', help='Convert a query to specific data source')
     convert_query_parser.set_defaults(func=convert_query)
     convert_query_parser.add_argument('query', help='EQL query in common schema')
-    convert_query_parser.add_argument('-s', choices=sources, dest='data-source', help='Data source')
 
     convert_data_parser = subparsers.add_parser('convert-data', help='Convert data from a specific data source')
     convert_data_parser.set_defaults(func=convert_data)
     convert_data_parser.add_argument('input-file', help='Input JSON file')
     convert_data_parser.add_argument('output-file', help='Output JSON file')
-    convert_data_parser.add_argument('-s', choices=sources, dest='data-source', help='Data source', required=True)
-    convert_data_parser.add_argument('-e', '--encoding', help='Encoding', default="utf8")
 
     query_parser = subparsers.add_parser('query', help='Query over a data source')
     query_parser.set_defaults(func=run_query)
     query_parser.add_argument('query', help='EQL query in common schema')
-    query_parser.add_argument('input-file', help='Input JSON file')
-    query_parser.add_argument('-s', choices=sources, dest='data-source', help='Data source')
-    query_parser.add_argument('-e', '--encoding', help='File Encoding', default="utf8")
 
     survey_parser = subparsers.add_parser('survey', help='Run multiple analytics over non-normalized JSON data')
     survey_parser.set_defaults(func=survey_analytics)
-    survey_parser.add_argument('input-file', help='Input JSON file')
-    survey_parser.add_argument('-s', choices=sources, dest='data-source', help='Data source')
-    survey_parser.add_argument('-e', '--encoding', help='File Encoding', default="utf8")
     survey_parser.add_argument('-c', '--count', help='Print counts per analytic', action='store_true')
     survey_parser.add_argument('analytics', nargs='+', help='Path to analytic file or directory')
 
+    for p in (survey_parser, query_parser):
+        p.add_argument('--file', '-f', dest='input-file', help='Target file(s) to query with EQL')
+
+    for p in (convert_data_parser, survey_parser, query_parser):
+        p.add_argument('--encoding', '-e', help='Encoding of input file', default="utf8")
+        p.add_argument('--format', dest='file-format', choices=['json', 'jsonl', 'json.gz', 'jsonl.gz'])
+
+    for p in (convert_query_parser, convert_data_parser, survey_parser, query_parser):
+        p.add_argument('--source', '-s', choices=sources, dest='data-source', help='Data source', required=False)
 
     args = parser.parse_args()
     kv = {k.replace('-', '_'): v for k, v in vars(args).items()}

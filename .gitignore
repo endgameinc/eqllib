@@ -112,7 +112,7 @@ eqllib-env
 /.vscode
 
 # Data for testing
-/data
+#/data
 
 # Documentation
 docs/analytics

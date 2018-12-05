@@ -282,6 +282,9 @@ class Normalizer(AstWalker):
             scoped = scoper(data) if scoper else data
             output = {} if self.strict else scoped.copy()
 
+            if self.time_field not in data:
+                raise ValueError("Unable to normalize. Double check that the input schema matches {}".format(self.name))
+
             ts = data[self.time_field]
             if self.time_format != 'filetime':
                 ts = int((datetime.datetime.strptime(ts, self.time_format) - FILETIME_BASE).total_seconds() * 1e7)

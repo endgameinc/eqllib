@@ -18,11 +18,17 @@ function Get-EventProps {
     }
 }
 
+function reverse {
+ $arr = @($input)
+ [array]::reverse($arr)
+ $arr
+}
+
 function Get-LatestLogs {
-    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational"} -MaxEvents 5000 | Get-EventProps
+    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational"} -MaxEvents 5000 | Get-EventProps | reverse
 }
 
 function Get-LatestProcesses {
-    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational";id=1} -MaxEvents 1000 | Get-EventProps
+    Get-WinEvent -filterhashtable @{logname="Microsoft-Windows-Sysmon/Operational";id=1} -MaxEvents 1000 | Get-EventProps | reverse
 }
 

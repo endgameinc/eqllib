@@ -4,8 +4,8 @@
 EQL Analytics Library
 ========================
 
-.. image:: _static/eql.png
-    :alt: eql logo
+.. image:: _static/eql-whoami.jpg
+    :alt: what is eql
     :scale: 50%
 
 **eqllib** is a library of event based analytics, written in `EQL`_ to detect adversary behaviors identified in MITRE `ATT&CK™ <https://attack.mitre.org>`_.

@@ -31,7 +31,7 @@ setup(
     description='EQL Analytics Library',
     install_requires=[
         "toml~=0.10.0",
-        "eql==0.6.0",
+        "eql==0.6.1",
         "jsl~=0.2",
         "jsonschema~=2.5",
     ],
@@ -47,7 +47,7 @@ setup(
         ],
     },
     package_data={
-        'eqllib': ['enterprise-attack.json'] +
+        'eqllib': ['enterprise-attack.json.gz'] +
                   list(recursive_glob('domains', '*.toml')) +
                   list(recursive_glob('analytics', '*.toml')) +
                   list(recursive_glob('sources', '*.toml')),

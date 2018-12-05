@@ -1,4 +1,5 @@
 from collections import defaultdict
+import gzip
 import json
 import os
 
@@ -13,7 +14,7 @@ def build_attack():
     if attack:
         return attack, techniques, tactics
 
-    with open(os.path.join(os.path.dirname(__file__), 'enterprise-attack.json'), 'r') as f:
+    with gzip.open(os.path.join(os.path.dirname(__file__), 'enterprise-attack.json.gz'), 'r') as f:
         attack.update(json.load(f))
 
     # Populate the ATT&CK matrix

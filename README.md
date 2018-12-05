@@ -1,7 +1,7 @@
 # EQL Analytics Library
 See https://eqllib.readthedocs.io for documentation
 
-![alt text](docs/_static/eql.png "EQL Logo")
+![alt text](docs/_static/eql-whoami.jpg "What is EQL")
 
 # Getting Started
 
