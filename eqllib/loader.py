@@ -11,7 +11,7 @@ from .normalization import Normalizer
 from .schemas import Analytic, BaseNormalization, make_normalization_schema
 from .utils import recursive_glob
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Configuration(object):
@@ -95,19 +95,25 @@ class Configuration(object):
     @classmethod
     def default(cls):
         if not cls._default:
-            self = cls.from_directories(os.path.join(current_dir, "domains"),
-                                        os.path.join(current_dir, "sources"),
+            self = cls.from_directories(os.path.join(CURRENT_DIR, "domains"),
+                                        os.path.join(CURRENT_DIR, "sources"),
                                         None)
             cls._default = self
         return cls._default
 
     @classmethod
-    def from_directories(cls, domain_dir, source_dir, analytics_dir, parent=None):
+    def default_with_analytics(cls):
+        return cls.from_directories(os.path.join(CURRENT_DIR, "domains"),
+                                    os.path.join(CURRENT_DIR, "sources"),
+                                    os.path.join(CURRENT_DIR, "analytics"))
+
+    @classmethod
+    def from_directories(cls, domain_dir=None, source_dir=None, analytics_dir=None, parent=None):
         self = cls(parent=parent)
-        for domain_path in recursive_glob(domain_dir, "*.toml"):
+        for domain_path in sorted(recursive_glob(domain_dir, "*.toml")):
             self.add_domain(toml.load(domain_path))
 
-        for source_path in recursive_glob(source_dir, "*.toml"):
+        for source_path in sorted(recursive_glob(source_dir, "*.toml")):
             self.add_source(toml.load(source_path))
 
         for analytic in sorted(recursive_glob(analytics_dir, "*.toml")):

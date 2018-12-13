@@ -31,7 +31,7 @@ setup(
     description='EQL Analytics Library',
     install_requires=[
         "toml~=0.10.0",
-        "eql==0.6.1",
+        "eql==0.6.2",
         "jsl~=0.2",
         "jsonschema~=2.5",
     ],

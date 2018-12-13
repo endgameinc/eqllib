@@ -6,6 +6,7 @@ Schemas
    :hidden:
 
    schemas/sysmon
+   schemas/car
 
 
 Security Events

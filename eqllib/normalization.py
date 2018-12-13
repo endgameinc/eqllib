@@ -36,7 +36,9 @@ class NormalizedEngine(PythonEngine):
     @staticmethod
     def _split(value, delim, pos):
         if value is not None:
-            return value.split(delim)[pos]
+            pieces = value.split(delim)
+            if pos < len(pieces):
+                return pieces[pos]
 
     @staticmethod
     def _coalesce(*args):
@@ -283,7 +285,7 @@ class Normalizer(AstWalker):
             output = {} if self.strict else scoped.copy()
 
             if self.time_field not in data:
-                raise ValueError("Unable to normalize. Double check that the input schema matches {}".format(self.name))
+                raise ValueError("Unable to normalize. Check that the input schema matches {}".format(self.name))
 
             ts = data[self.time_field]
             if self.time_format != 'filetime':
@@ -308,12 +310,14 @@ class Normalizer(AstWalker):
                 if value is not None:
                     output[normalized] = value
 
+            # check the enums, but not against the scoped fields
             for enum_name, enum_options in enum_converters.get(event_type, []):
                 for enum_option, enum_checker in enum_options:
                     if enum_checker(evt):
                         output[enum_name] = enum_option
                         break
 
+            # check the mappings against the scoped fields
             for normalized, converter in event_mapping.get(event_type, {}).items():
                 value = converter(scoped_evt)
                 if value is not None:

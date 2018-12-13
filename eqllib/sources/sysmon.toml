@@ -9,6 +9,7 @@ field = "UtcTime"
 format = "%Y-%m-%d %H:%M:%S.%f"
 
 [fields.mapping]
+hostname = 'split(ComputerName, ".", 0)'
 pid = "number(ProcessId)"
 process_name = 'baseName(Image)'
 process_path = "Image"
@@ -57,7 +58,6 @@ terminate = "EventId == 5"
 
 [events.process.mapping]
 command_line = "CommandLine"
-# exit_code - not provided by sysmon
 logon_id = "number(LogonId)"
 parent_process_name = "baseName(ParentImage)"
 parent_process_path = "ParentImage"
@@ -76,3 +76,7 @@ filter = "EventId in (12, 13, 14)"
 registry_key = "dirName(TargetObject)"
 registry_value = "baseName(TargetObject)"
 registry_path = "TargetObject"
+
+[events.registry.enum.hive]
+hklm = 'TargetObject == "HKLM\\*"'
+hku = 'TargetObject == "HKU\\*"'

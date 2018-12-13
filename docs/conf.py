@@ -297,9 +297,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 from eqllib.attack import build_attack, techniques, tactics, get_matrix
 
-base_cfg = eqllib.Configuration.default()
-analytics_dir = os.path.join(eqllib.__path__[0], "analytics")
-config = eqllib.Configuration.from_directories(None, None, analytics_dir, parent=base_cfg)
+config = eqllib.Configuration.default_with_analytics()
 html_context = {}
 
 build_attack()

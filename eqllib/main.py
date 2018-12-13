@@ -56,11 +56,16 @@ def run_query(data_source, query, input_file, file_format, encoding, config):
 
 def survey_analytics(data_source, input_file, file_format, encoding, analytics, count, config):
     """Convert a normalized query to a specific data source."""
+    if analytics:
+        # Clear out the analytics
+        config = Configuration(parent=Configuration.default())
+
+        for folder in analytics:
+            for path in recursive_glob(folder, "*.toml"):
+                config.add_analytic(toml.load(path))
+
     if data_source is None:
         data_source = next(iter(config.domain_schemas))
-    for folder in analytics:
-        for path in recursive_glob(folder, "*.toml"):
-            config.add_analytic(toml.load(path))
 
     source = config.normalizers[data_source]
     domain = config.normalizers[source.domain]
@@ -117,7 +122,7 @@ def convert_data(data_source, input_file, output_file, encoding, file_format, co
 
 def normalize_main():
     """Entry point for EQL command line utility."""
-    config = Configuration.default()
+    config = Configuration.default_with_analytics()
     sources = [str(source) for source in config.sources]
 
     parser = argparse.ArgumentParser(description='EQL Analytics')
@@ -139,7 +144,7 @@ def normalize_main():
     survey_parser = subparsers.add_parser('survey', help='Run multiple analytics over non-normalized JSON data')
     survey_parser.set_defaults(func=survey_analytics)
     survey_parser.add_argument('-c', '--count', help='Print counts per analytic', action='store_true')
-    survey_parser.add_argument('analytics', nargs='+', help='Path to analytic file or directory')
+    survey_parser.add_argument('analytics', nargs='*', help='Path to analytic file or directory')
 
     for p in (survey_parser, query_parser):
         p.add_argument('--file', '-f', dest='input-file', help='Target file(s) to query with EQL')

@@ -1,6 +1,7 @@
 name = "security"
 fields = [
   # Common Fields
+  "hostname",
   "pid",
   "process_name",
   "process_path",
@@ -18,7 +19,7 @@ fields = [
 ]
 
 [events.file.enum]
-subtype = ["create", "modify", "delete", "overwrite"]
+subtype = ["create", "modify", "delete"]
 
 [events.image_load]
 fields = [
@@ -29,7 +30,6 @@ fields = [
 [events.process]
 fields = [
   "command_line",
-  "exit_code",
   "logon_id",
   "parent_process_name",
   "parent_process_path",
@@ -64,3 +64,4 @@ fields = [
 
 [events.registry.enum]
 registry_type = ["dword", "qword", "string", "expand_string", "multi_string", "binary"]
+hive = ["hku", "hklm"]

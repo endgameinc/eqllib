@@ -1,0 +1,83 @@
+name = "MITRE Cyber Analytics Repository"
+os_types = ["windows"]
+strict = true
+domain = "security"
+
+[timestamp]
+field = "@timestamp"
+format = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+
+[fields]
+scope = "data_model.fields"
+
+[fields.mapping]
+hostname = "hostname"
+pid = "pid"
+process_name = "exe"
+process_path = "image_path"
+unique_pid = "process_guid"
+user_domain = 'split(user, "\\", 0)'
+user_name = 'split(user, "\\", 1)'
+user = "user"
+
+[events.file]
+filter = "data_model.object = 'file'"
+
+[events.file.enum.subtype]
+create = 'arrayContains(data_model.actions, "create")'
+delete = 'arrayContains(data_model.actions, "delete")'
+modify = 'arrayContains(data_model.actions, "modify")'
+
+[events.file.mapping]
+file_name = "file_name"
+file_path = "file_path"
+
+[events.process]
+filter = "data_model.object = 'process'"
+
+[events.process.enum.subtype]
+create = "arrayContains(data_model.action, 'create')"
+terminate = "arrayContains(data_model.action, 'terminate')"
+
+[events.process.mapping]
+command_line = "command_line"
+ppid = "ppid"
+parent_process_name = "parent_exe"
+parent_process_path = "parent_image_path"
+unique_ppid = "parent_process_guid"
+
+[events.network]
+filter = "data_model.object == 'flow'"
+
+[events.network.enum.subtype]
+outgoing = "initiated"
+incoming = "not initiated"
+
+[events.network.mapping]
+destination_address = "dest_address"
+destination_port = "dest_port"
+protocol = "transport"
+source_address = "src_address"
+source_port = "src_port"
+
+[events.registry]
+filter = 'data_model.object == "registry" and not arrayContains(data_model.actions, "remove")'
+
+[events.registry.mapping]
+registry_data = "data"
+registry_key = "dirName(key_path)"
+registry_path = "key_path"
+registry_value = 'value'
+
+[events.registry.enum.registry_type]
+dword = 'type = "REG_DWORD"'
+qword = 'type = "REG_QWORD"'
+string = 'type = "REG_SZ"'
+expand_string = 'type = "REG_EXPAND_SZ"'
+multi_string = 'type = "REG_MULTI_SZ"'
+binary = 'type == "REG_BINARY"'
+
+[events.registry.enum.hive]
+hklm = 'hive == "HKEY_LOCAL_MACHINE"'
+hku = 'hive == "HKEY_USERS"'
