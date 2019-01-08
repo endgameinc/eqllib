@@ -15,5 +15,5 @@ updated_date = "01/07/2019"
 [analytic]
 query = '''
 process where subtype.create and
-  process_name == "procdump.exe" and command_line == "*lsass*"
+  process_name == "procdump*.exe" and command_line == "*lsass*"
 '''
