@@ -14,6 +14,5 @@ updated_date = "01/07/2019"
 
 [analytic]
 query = '''
-file where file_name == "*lsass*" and
-    event of [process where process_name == "taskmgr.exe"]
+file where file_name == "lsass*.dmp" and process_name != "werfault.exe"
 '''
