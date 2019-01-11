@@ -6,4 +6,6 @@
    :hidden:
 
    matrices/windows
+   matrices/macos
+   matrices/linux
 
