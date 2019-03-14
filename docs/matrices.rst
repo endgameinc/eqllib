@@ -5,5 +5,7 @@
    :maxdepth: 0
    :hidden:
 
+   matrices/linux
+   matrices/macos
    matrices/windows
 

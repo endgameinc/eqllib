@@ -10,7 +10,7 @@ notes = """
 The Sysmon driver can be installed with various service names. The analytic should be changed
 to reflect the installed service name if Sysmon is installed with a different name.
 """
-os = "windows"
+os = ["windows"]
 references = []
 tactics = ["Defense Evasion"]
 tags = ["atomicblue"]

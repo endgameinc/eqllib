@@ -10,7 +10,7 @@ notes = """
 As of Windows 8, the ``at.exe`` command was deprecated and prints the error message
     The AT command has been deprecated. Please use schtasks.exe instead.
 """
-os = "windows"
+os = ["windows"]
 references = [
   "https://blogs.technet.microsoft.com/supportingwindows/2013/07/05/whats-new-in-task-scheduler-for-windows-8-server-2012/"
 ]

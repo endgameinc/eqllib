@@ -9,7 +9,7 @@ AppInit DLLs are loaded into every process that users the common library ``user3
 """
 id = "822dc4c5-b355-4df8-bd37-29c458997b8f"
 name = "Persistence via AppInit DLL"
-os = "windows"
+os = ["windows"]
 tactics = ["Persistence", "Privilege Escalation"]
 tags = ["atomicblue"]
 techniques = ["T1103"]

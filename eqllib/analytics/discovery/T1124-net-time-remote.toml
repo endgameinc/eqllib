@@ -9,7 +9,7 @@ This technique may be used before executing a scheduled task or to discover the 
 """
 id = "fcdb99c2-ac3c-4bde-b664-4b336329bed2"
 name = "Discovery of a Remote System's Time"
-os = "windows"
+os = ["windows"]
 references = []
 tactics = ["Discovery"]
 tags = ["atomicblue"]

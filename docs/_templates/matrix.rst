@@ -15,7 +15,7 @@
     {% for row in matrix_cells %}
     * {% for tactic, technique in zip(tactics, row) %}- {% if technique %}`{{technique.name}}`_
         {% for analytic in coverage[tactic.name][technique.external_references[0].external_id] %}
-        - :doc:`../analytics/{{analytic.id}}`
+        {% if not os or platform.lower() in analytic.metadata.os %}- :doc:`../analytics/{{analytic.id}}`{% endif %}
         {% endfor %}
         {% endif %}
       {% endfor %}

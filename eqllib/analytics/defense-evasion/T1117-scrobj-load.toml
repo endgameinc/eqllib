@@ -6,7 +6,7 @@ created_date = "11/30/2018"
 description = "Identifies scrobj.dll loaded into unusual Microsoft processes, often indicating a *Squiblydoo* attack."
 id = "a792cb37-fa56-43c2-9357-4b6a54b559c7"
 name = "Suspicious Script Object Execution"
-os = "windows"
+os = ["windows"]
 references = [
   "https://web.archive.org/web/20170427203617/http://subt0x10.blogspot.com/2017/04/bypass-application-whitelisting-script.html",
   "https://gist.github.com/subTee/24c7d8e1ff0f5602092f58cbb3f7d302",

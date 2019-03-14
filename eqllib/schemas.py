@@ -4,7 +4,7 @@ from jsl import Document as BaseDocument
 import jsonschema
 
 UUID_PATTERN = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
+OS_NAMES = ["linux", "macos", "windows"]
 TACTICS = [
     'Initial Access',
     'Persistence',
@@ -48,7 +48,7 @@ class AnalyticMetadata(Document):
     description = StringField(required=True)
     name = StringField(required=True)
     notes = StringField(required=False)
-    os = StringField(required=False)
+    os = ArrayField(StringField(enum=OS_NAMES), required=True)
     references = ArrayField(StringField(), required=False)
     tactics = ArrayField(StringField(enum=TACTICS), required=False)
     tags = ArrayField(StringField(), required=False)

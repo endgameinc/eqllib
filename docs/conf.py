@@ -356,17 +356,17 @@ def setup(app):
             f.write(rendered.encode("utf8"))
 
         with open(os.path.join("matrices", "windows.rst"), "wb") as f:
-            rendered = template.render(matrix_cells=get_matrix("Windows"), platform="Windows", **rst_context)
+            rendered = template.render(matrix_cells=get_matrix("Windows"), os=True, platform="Windows", **rst_context)
             f.write(rendered.encode("utf8"))
 
         # Will add back when support exists
-        # with open(os.path.join("matrices", "linux.rst"), "wb") as f:
-        #     rendered = template.render(matrix_cells=get_matrix("Linux"), platform="Linux", **rst_context)
-        #     f.write(rendered.encode("utf8"))
+        with open(os.path.join("matrices", "linux.rst"), "wb") as f:
+            rendered = template.render(matrix_cells=get_matrix("Linux"), os=True, platform="Linux", **rst_context)
+            f.write(rendered.encode("utf8"))
 
-        # with open(os.path.join("matrices", "macos.rst"), "wb") as f:
-        #     rendered = template.render(matrix_cells=get_matrix("macOS"), platform="macOS", **rst_context)
-        #     f.write(rendered.encode("utf8"))
+        with open(os.path.join("matrices", "macos.rst"), "wb") as f:
+            rendered = template.render(matrix_cells=get_matrix("macOS"), os=True, platform="macOS", **rst_context)
+            f.write(rendered.encode("utf8"))
 
     app.add_stylesheet('atomicblue.css')
     app.connect("source-read", rstjinja)

@@ -9,7 +9,7 @@ This is used by attackers to establish persistence.
 """
 id = "5f9a71f4-f5ef-4d35-aff8-f67d63d3c896"
 name = "Persistence via NetSh Key"
-os = "windows"
+os = ["windows"]
 tactics = ["Persistence"]
 tags = ["atomicblue"]
 techniques = ["T1128"]
