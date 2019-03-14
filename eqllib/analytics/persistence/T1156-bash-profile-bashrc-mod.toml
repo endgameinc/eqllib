@@ -1,5 +1,5 @@
 [analytic.metadata]
-categories = ["detect"]
+categories = ["hunt"]
 confidence = "low"
 contributors = ["Tony Lambert"]
 created_date = "01/10/2019"
