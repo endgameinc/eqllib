@@ -9,7 +9,7 @@
 :id: {{analytic.id}}
 :categories: {{ analytic.metadata.categories | join(", ")}}
 :confidence: {{analytic.metadata.confidence}}
-:os: {{ analytic.metadata.os }}
+:os: {{ analytic.metadata.os | join(", ")}}
 :created: {{ analytic.metadata.created_date }}
 :updated: {{ analytic.metadata.updated_date }}
 
