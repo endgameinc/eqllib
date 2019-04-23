@@ -55,10 +55,10 @@ outgoing = "initiated"
 incoming = "not initiated"
 
 [events.network.mapping]
-destination_address = "dest_address"
+destination_address = "dest_ip"
 destination_port = "dest_port"
 protocol = "transport"
-source_address = "src_address"
+source_address = "src_ip"
 source_port = "src_port"
 
 [events.registry]
