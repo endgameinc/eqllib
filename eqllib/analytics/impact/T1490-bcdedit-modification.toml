@@ -7,10 +7,10 @@ description = "Identifies use of the bcdedit command to delete boot configuratio
 id = "c4732632-9c1d-4980-9fa8-1d98c93f918e"
 name = "Modification of Boot Configuration"
 os = ["windows"]
-tactics = ["Defense Evasion"]
+tactics = ["Impact"]
 tags = ["atomicblue"]
-techniques = ["T1107"]
-updated_date = "11/30/2018"
+techniques = ["T1490"]
+updated_date = "05/17/2019"
 
 [analytic]
 query = '''
