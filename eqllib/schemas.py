@@ -2,22 +2,14 @@
 from jsl import DocumentField, ArrayField, StringField, BooleanField, DictField
 from jsl import Document as BaseDocument
 import jsonschema
+import eql.types
+from .attack import build_attack, tactics
+
+build_attack()
 
 UUID_PATTERN = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 OS_NAMES = ["linux", "macos", "windows"]
-TACTICS = [
-    'Initial Access',
-    'Persistence',
-    'Privilege Escalation',
-    'Defense Evasion',
-    'Credential Access',
-    'Discovery',
-    'Lateral Movement',
-    'Execution',
-    'Collection',
-    'Exfiltration',
-    'Command and Control',
-]
+TACTICS = [t['name'] for t in tactics]
 
 
 eql_name = r"[a-zA-Z][A-Za-z0-9_]*"
@@ -41,7 +33,7 @@ class AnalyticMetadata(Document):
     """Base class for all analytics. Can be extended for cloud."""
 
     id = StringField(pattern=UUID_PATTERN, required=True)
-    categories = ArrayField(StringField(enum=['detect', 'hunt']), required=True)
+    categories = ArrayField(StringField(enum=['detect', 'hunt', 'enrich']), required=True)
     contributors = ArrayField(StringField(), required=True)
     confidence = StringField(enum=['low', 'medium', 'high'], required=True)
     created_date = StringField(required=True)
@@ -76,6 +68,7 @@ class Domain(Document):
 
 
 class StrictDict(DictField):
+    """Dictionary schema that does not allow for additional keys."""
 
     def __init__(self, properties):
         super(StrictDict, self).__init__(properties=properties, additional_properties=False)
@@ -111,10 +104,10 @@ class BaseNormalization(Document):
 
 def make_normalization_schema(domain_schema):
     """Given a domain, make a schema for normalization."""
-
     class Normalization(BaseNormalization):
         """Normalization schema for a specific domain."""
 
+        eql_schema = domain_to_eql_schema(domain_schema)
         domain_name = domain_schema['name']
         domain = StringField(enum=[domain_name], required=True)
 
@@ -134,3 +127,22 @@ def make_normalization_schema(domain_schema):
         })
 
     return Normalization
+
+
+def domain_to_eql_schema(domain, allow_generic=False, allow_any=True):  # type: (dict, bool, bool) -> eql.Schema
+    """Given a domain, generate an EQL schema for valid parsing."""
+    def mixed_schema(fieldlist):
+        return {field: "mixed" for field in fieldlist}
+
+    def make_enum(enum_dict):
+        return {field: {value: "boolean" for value in values} for field, values in enum_dict.items()}
+
+    base_fields = domain.get("fields", [])
+    full_schema = {}
+
+    for event_name, event_schema in domain.get("events", {}).items():
+        full_schema[event_name] = mixed_schema(base_fields)
+        full_schema[event_name].update(mixed_schema(event_schema.get("fields", [])))
+        full_schema[event_name].update(make_enum(event_schema.get("enum", {})))
+
+    return eql.Schema(full_schema, allow_generic=allow_generic, allow_any=allow_any)

@@ -15,6 +15,6 @@ updated_date = "11/30/2018"
 [analytic]
 query = '''
 registry where
-  key_path == "*_Classes\\CLSID\\{*}\\InprocServer32*" and
-  (bytes_written_string == "scrobj*" or bytes_written_string == "*\\scrobj*")
+  registry_path == "*_Classes\\CLSID\\{*}\\InprocServer32*" and
+  (registry_data == "scrobj*" or registry_data == "*\\scrobj*")
 '''

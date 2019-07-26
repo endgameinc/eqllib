@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Identifies potentially stealthy execution via the Microsoft Connection Manager Profile Installer."
+id = "56c64a8c-a787-488a-a7f2-b992d332679d"
+name = "Execution via cmstp.exe"
+os = ["windows"]
+tactics = ["Defense Evasion", "Execution"]
+techniques = ["T1191"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name == "cmstp.exe" and
+  command_line == "* /s *"
+'''

@@ -14,7 +14,7 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-registry where key_path == "*\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Custom\\*.sdb"
+registry where registry_path == "*\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Custom\\*.sdb"
   and not event of [process where subtype.create and
 
                       // Ignore legitimate usage of sdbinst.exe

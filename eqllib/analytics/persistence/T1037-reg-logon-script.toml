@@ -14,5 +14,5 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-registry where key_path == "*\\Environment\\UserInitMprLogonScript"
+registry where registry_path == "*\\Environment\\UserInitMprLogonScript"
 '''

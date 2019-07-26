@@ -66,8 +66,8 @@ filter = 'data_model.object == "registry" and not arrayContains(data_model.actio
 
 [events.registry.mapping]
 registry_data = "data"
-registry_key = "dirName(key_path)"
-registry_path = "key_path"
+registry_key = "key"
+registry_path = "key"
 registry_value = 'value'
 
 [events.registry.enum.registry_type]

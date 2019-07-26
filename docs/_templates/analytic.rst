@@ -1,8 +1,10 @@
 .. include:: ../links.rst
-
-========================================================
+{% if display_github and github_user and github_repo and github_version and repo_path %}
+:github_url: https://{{ github_host|default("github.com") }}/{{ github_user }}/{{ github_repo }}/{{ theme_vcs_pageview_mode|default("blob") }}/{{ github_version }}/{{ repo_path }}
+{% endif %}
+=======================================================================
 {{analytic.name}}
-========================================================
+=======================================================================
 
 {{analytic.metadata.description}}
 

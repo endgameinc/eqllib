@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Windows contains several built-in commands to report system information. These may be used by an actor to gain detailed information about the target machine."
+id = "507f19c1-dfa9-475b-925e-61e417a10967"
+name = "Enumeration of System Information"
+os = ["windows"]
+tactics = ["Discovery"]
+techniques = ["T1082"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name in ("systeminfo", "hostname") or (
+    process_name == "cmd.exe" and command_line == "* ver*"
+  )
+'''

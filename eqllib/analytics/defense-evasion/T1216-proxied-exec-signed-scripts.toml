@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Signed script scripts such as PubPrn.vbs can be used to proxy execution from a remote site while bypassing signature validation restrictions and potentially application whitelisting."
+id = "0d62a884-1052-44d0-a76c-1f4845e348d2"
+name = "Proxied Execution via Signed Scripts"
+os = ["windows"]
+tactics = ["Defense Evasion", "Execution"]
+techniques = ["T1216"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name in ("cscript.exe", "wscript.exe") and
+  command_line == "* *.vbs* *script:http*"
+'''

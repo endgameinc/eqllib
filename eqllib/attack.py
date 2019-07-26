@@ -1,3 +1,4 @@
+"""Wrapper around MITRE ATT&CK(TM)."""
 from collections import defaultdict
 import gzip
 import json
@@ -24,10 +25,10 @@ def build_attack():
                 if reference.get('source_name') == 'mitre-attack':
                     technique_id = reference['external_id']
                     techniques[technique_id] = obj
-                    for phase in obj['kill_chain_phases']:
-                        if phase['kill_chain_name'] == 'mitre-attack':
-                            tactic_name = phase['phase_name']
-                        break
+                    # for phase in obj['kill_chain_phases']:
+                    #     if phase['kill_chain_name'] == 'mitre-attack':
+                    #         tactic_name = phase['phase_name']
+                    #     break
 
         if obj['type'] == 'x-mitre-tactic':
             tactics.append(obj)

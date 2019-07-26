@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Windows Control Panel items are utilities that allow users to view and adjust computer settings. Adversaries can use Control Panel items as execution payloads to execute arbitrary commands."
+id = "3b9bbf6b-dde2-4f82-b1ad-b3b625f44a26"
+name = "Control Panel Items"
+os = ["windows"]
+tactics = ["Defense Evasion", "Execution"]
+techniques = ["T1196"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name in ("control.exe", "rundll32.exe") and
+  command_line == "*.cpl *"
+'''

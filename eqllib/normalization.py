@@ -1,75 +1,49 @@
 """Normalization utilities for EQL compatibility."""
 from __future__ import print_function
 import datetime
-import ntpath
 from collections import OrderedDict
-from eql.ast import *
-from eql.parser import parse_expression, parse_query
-from eql.engines import PythonEngine, Event
-from eql.engines.base import BaseTranspiler, NodeMethods
+import eql
+from eql.ast import *  # noqa: F403
 from eql.schema import EVENT_TYPE_GENERIC
+from eql.walkers import DepthFirstWalker
+from .functions import extra_functions
 
 FILETIME_BASE = datetime.datetime(1601, 1, 1, 0, 0, 0)
 
 
-class NormalizedEngine(PythonEngine):
-    norm_functions = ('baseName', 'dirName', 'split', 'coalesce')
+class NormalizedEngine(eql.PythonEngine):
+    """Add normalization functions to the engine."""
 
     def __init__(self, config=None):
+        config = config or {}
+        config.setdefault('functions', {}).update(extra_functions)
         super(NormalizedEngine, self).__init__(config)
 
-        self.add_custom_function('baseName', self._basename)
-        self.add_custom_function('dirName', self._dirname)
-        self.add_custom_function('split', self._split)
-        self.add_custom_function('coalesce', self._coalesce)
 
-    @staticmethod
-    def _basename(path):
-        if path is not None:
-            return ntpath.basename(path)
-
-    @staticmethod
-    def _dirname(path):
-        if path is not None:
-            return ntpath.dirname(path)
-
-    @staticmethod
-    def _split(value, delim, pos):
-        if value is not None:
-            pieces = value.split(delim)
-            if pos < len(pieces):
-                return pieces[pos]
-
-    @staticmethod
-    def _coalesce(*args):
-        for arg in args:
-            if arg is not None:
-                return arg
-
-
-class QueryNormalizer(BaseTranspiler):
-
-    normalizers = NodeMethods()
+class QueryNormalizer(DepthFirstWalker):
+    """Class for converting queries from a domain to a specific source."""
 
     def __init__(self, normalizer):
-        self.normalizer = normalizer  # type: Normalizer
-        super(QueryNormalizer, self).__init__()
+        self.normalizer = normalizer
+        DepthFirstWalker.__init__(self)
 
-    @normalizers.add(EventQuery)
-    def normalize_query(self, event_query, _):
+    def walk(self, node, *args, **kwargs):
+        """Optimize nodes while walking."""
+        node = super(QueryNormalizer, self).walk(node, *args, **kwargs)
+        if isinstance(node, BaseNode):
+            node = node.optimize()
+        return node
+
+    def _walk_event_query(self, event_query):
         """Add filter_query to the converted condition."""
-        event_type = event_query.event_type
-        query = self.convert(event_query.query, event_type)
+        if self.normalizer.config.get('filter_query') and self.current_event_type in self.normalizer.event_filters:
+            event_query.query = (self.normalizer.event_filters[self.current_event_type] & event_query.query).optimize()
+        return event_query
 
-        if self.normalizer.config.get('filter_query') and event_type in self.normalizer.event_filters:
-            query = self.normalizer.event_filters[event_type] & query
-        return EventQuery(event_type, query)
-
-    @normalizers.add(Field)
-    def normalize_field(self, field, event_type):
+    def _walk_field(self, field):
         """Expand fields and enums to the target name or expression."""
         name = field.base
-        enums = self.normalizer.event_enums.get(event_type, {}).get(name, {})
+        enums = self.normalizer.event_enums.get(self.current_event_type, {}).get(name, {})
         path = field.path
 
         if len(path) == 1 and path[0] in enums:
@@ -78,7 +52,7 @@ class QueryNormalizer(BaseTranspiler):
         # Also, replace a field using fields.mapping
         default = Null() if self.normalizer.strict else field
         global_converted = self.normalizer.field_mapping.get(name)
-        event_converted = self.normalizer.event_field_mapping.get(event_type, {}).get(name)
+        event_converted = self.normalizer.event_field_mapping.get(self.current_event_type, {}).get(name)
 
         converted = event_converted or global_converted or default
 
@@ -86,37 +60,40 @@ class QueryNormalizer(BaseTranspiler):
             converted.path = path
         return converted
 
-    @normalizers.add(FunctionCall)
-    def normalize_functions(self, func, event_type):
-        if func.name == 'wildcard' and isinstance(func.arguments[0], Field):
-            arguments = [self.convert(arg, event_type) for arg in func.arguments]
-            base = arguments[0]
+    def _walk_function_call(self, node):
+        """Convert wildcards between multiple fields."""
+        if node.name == 'wildcard' and len(node.arguments) >= 2:
+            base = node.arguments[0]
             if isinstance(base, FunctionCall) and base.name == 'coalesce':
                 coalesce_args = base.arguments
-                return Or([FunctionCall('wildcard', [c] + arguments[1:]) for c in coalesce_args])
+                return Or([FunctionCall('wildcard', [c] + node.arguments[1:]) for c in coalesce_args])
+        return node
 
-    @normalizers.add(Comparison)
-    def normalize_comparison(self, comparison, event_type):
-        """Convert baseName(path) == 'a' -> path == '*\\a'."""
+    def _walk_comparison(self, comparison):
+        r"""Convert baseName(path) == 'a' -> path == '*\\a'."""
         if isinstance(comparison.left, FunctionCall) and comparison.left.name == 'coalesce' \
                 and comparison.comparator == Comparison.EQ:
-            return Or([self.convert(Comparison(a, Comparison.EQ, comparison.right), event_type)
+            return Or([self._walk_comparison(Comparison(a, Comparison.EQ, comparison.right))
                        for a in comparison.left.arguments])
 
-        left = self.convert(comparison.left, event_type)
-        right = self.convert(comparison.right, event_type)
+        if isinstance(comparison.left, FunctionCall) and isinstance(comparison.right, String) and \
+                comparison.comparator in (Comparison.EQ, Comparison.NE):
+            func = comparison.left
+            args = comparison.left.arguments
 
-        if isinstance(left, FunctionCall) and isinstance(right, String):
-            func = left
-            args = left.arguments
+            if func.name == 'baseName':
+                if isinstance(args[0], Field):
+                    func = FunctionCall('wildcard', [args[0], String("*\\" + comparison.right.value)])
+                else:
+                    return args[0]
 
-            if func.name == 'baseName' and isinstance(args[0], Field):
-                func = FunctionCall('wildcard', [args[0], String("*\\" + right.value)])
+            elif func.name == 'dirName':
+                if isinstance(args[0], Field):
+                    func = FunctionCall('wildcard', [args[0], String(comparison.right.value + "\\*")])
+                else:
+                    return args[0]
 
-            elif func.name == 'dirName' and isinstance(args[0], Field):
-                func = FunctionCall('wildcard', [args[0], String(right.value + "\\*")])
-
-            elif left.name == 'coalesce' and isinstance(args[0], Field):
+            elif func.name == 'coalesce' and isinstance(args[0], Field):
                 return Or([Comparison(a, Comparison.EQ, comparison.right) for a in args])
             else:
                 return
@@ -125,25 +102,23 @@ class QueryNormalizer(BaseTranspiler):
                 return func
             elif comparison.comparator == Comparison.NE:
                 return ~ func
+        return comparison
 
-    @normalizers.add(InSet)
-    def normalize_set(self, set_lookup, event_type):
-        """Convert normalization functions for set lookups."""
+    def _walk_in_set(self, set_lookup):
         if set_lookup.is_literal():
-            expression = self.convert(set_lookup.expression, event_type)
+            expression = set_lookup.expression
             if isinstance(expression, FunctionCall):
                 func = expression
                 args = func.arguments
+                all_strings = all(isinstance(c, String) for c in set_lookup.container)
 
                 # Convert baseName(path) in ("a", "b", "c") -> wildcard(path, "*\\a", "*\\b", "*\\c")
-                if func.name == 'baseName' and isinstance(args[0], Field) and \
-                    all(isinstance(c, String) for c in set_lookup.container):
+                if func.name == 'baseName' and isinstance(args[0], Field) and all_strings:
                     arguments = [args[0]]
                     arguments.extend(String("*\\" + c.value) for c in set_lookup.container)
                     return FunctionCall('wildcard', arguments)
 
-                elif func.name == 'dirName' and isinstance(args[0], Field) and \
-                    all(isinstance(c, String) for c in set_lookup.container):
+                elif func.name == 'dirName' and isinstance(args[0], Field) and all_strings:
                     arguments = [args[0]]
                     arguments.extend(String(c.value + "\\*") for c in set_lookup.container)
                     return FunctionCall('wildcard', arguments)
@@ -151,34 +126,17 @@ class QueryNormalizer(BaseTranspiler):
                 elif func.name == 'coalesce':
                     args = [a for a in args if not (isinstance(a, Literal) and not a.value)]
                     return Or([InSet(a, set_lookup.container) for a in args])
-
         elif not set_lookup.is_dynamic():
-            return self.convert(set_lookup.split_literals(), event_type)
-
-    def convert(self, node, event_type=None, skip=False):
-        cls = type(node)
-        if cls in self.normalizers and not skip:
-            converted = self.normalizers(self, node, event_type)
-            if converted is not None:
-                return converted.optimize()
-
-        # Convert all the children and rebuild the current node
-        if isinstance(node, EqlNode):
-            children = [self.convert(v, event_type) for k, v in node.iter_slots()]
-            return cls(*children).optimize()
-        elif isinstance(node, (list, tuple)):
-            return [self.convert(v, event_type) for v in node]
-        elif isinstance(node, dict):
-            return {self.convert(k, event_type): self.convert(v, event_type) for k, v in node.items()}
-        else:
-            return node
+            return set_lookup.split_literals()
+        return set_lookup
 
 
-class Normalizer(AstWalker):
+class Normalizer(object):
     """Normalize data and queries to a data source."""
 
     def __init__(self, config):
         """Create the normalizer."""
+        object.__init__(self)
         self.config = config
         self.strict = config['strict']
         self.domain = config['domain']
@@ -187,33 +145,38 @@ class Normalizer(AstWalker):
         self.time_format = config['timestamp']['format']
 
         # Parse out the EQL field mapping
-        self.field_mapping = {field: parse_expression(eql_text)
-                              for field, eql_text in self.config['fields']['mapping'].items()}
+        with eql.ParserConfig(custom_functions=extra_functions.values()):
+            self.field_mapping = {field: eql.parse_expression(eql_text)
+                                  for field, eql_text in self.config['fields']['mapping'].items()}
 
-        # Parse out the EQL event types
-        self.event_filters = OrderedDict()
-        self.event_enums = OrderedDict()
-        self.event_field_mapping = OrderedDict()
+            # Parse out the EQL event types
+            self.event_filters = OrderedDict()
+            self.event_enums = OrderedDict()
+            self.event_field_mapping = OrderedDict()
 
-        for event_name, event_config in self.config['events'].items():
-            self.event_filters[event_name] = parse_expression(event_config['filter'])
-            self.event_enums[event_name] = OrderedDict()
-            self.event_field_mapping[event_name] = OrderedDict()
+            for event_name, event_config in self.config['events'].items():
+                self.event_filters[event_name] = eql.parse_expression(event_config['filter'])
+                self.event_enums[event_name] = OrderedDict()
+                self.event_field_mapping[event_name] = OrderedDict()
 
-            # Create a lookup for all of the event fields
-            for field_name, mapped_expression in event_config.get('mapping', {}).items():
-                self.event_field_mapping[event_name][field_name] = parse_expression(mapped_expression)
+                # Create a lookup for all of the event fields
+                for field_name, mapped_expression in event_config.get('mapping', {}).items():
+                    self.event_field_mapping[event_name][field_name] = eql.parse_expression(mapped_expression)
 
-            # Now loop over all of the enums, and build a mapping for EQL
-            for field_name, enum_mapping in event_config.get('enum', {}).items():
-                self.event_enums[event_name][field_name] = OrderedDict()
+                # Now loop over all of the enums, and build a mapping for EQL
+                for field_name, enum_mapping in event_config.get('enum', {}).items():
+                    self.event_enums[event_name][field_name] = OrderedDict()
 
-                for enum_option, enum_expr in enum_mapping.items():
-                    self.event_enums[event_name][field_name][enum_option] = parse_expression(enum_expr)
+                    for enum_option, enum_expr in enum_mapping.items():
+                        self.event_enums[event_name][field_name][enum_option] = eql.parse_expression(enum_expr)
 
         self._current_event_type = None
         self.data_normalizer = self.get_data_normalizer()
-        self.normalize_ast = QueryNormalizer(self).convert
+        self.query_normalizer = QueryNormalizer(self)
+
+    def normalize_ast(self, node):
+        """Convert an AST from a domain to a source."""
+        return QueryNormalizer(self).walk(node)
 
     def get_scoper(self):
         """Get a nested object for an EQL field."""
@@ -221,7 +184,7 @@ class Normalizer(AstWalker):
         if scope is None:
             return
 
-        field = parse_expression(scope)  # type: Field
+        field = eql.parse_expression(scope)  # type: Field
         keys = [field.base] + field.path
 
         def walk_path(value):
@@ -239,7 +202,7 @@ class Normalizer(AstWalker):
 
         return walk_path
 
-    def get_data_normalizer(self):
+    def get_data_normalizer(self):  # noqa: C901
         """Get a function that converts dictionaries to the normalized field names."""
         engine = NormalizedEngine()
 
@@ -292,7 +255,7 @@ class Normalizer(AstWalker):
                 ts = int((datetime.datetime.strptime(ts, self.time_format) - FILETIME_BASE).total_seconds() * 1e7)
 
             # Determine the event type first
-            evt = Event(None, None, data)
+            evt = eql.Event(None, None, data)
             if data.get('event_type') in event_updates:
                 event_type = data['event_type']
             else:
@@ -304,7 +267,7 @@ class Normalizer(AstWalker):
                     event_type = EVENT_TYPE_GENERIC
 
             # Convert the global fields
-            scoped_evt = Event(None, None, scoped)
+            scoped_evt = eql.Event(None, None, scoped)
             for normalized, converter in global_mapping.items():
                 value = converter(scoped_evt)
                 if value is not None:
@@ -326,8 +289,7 @@ class Normalizer(AstWalker):
             output['event_type'] = event_type
             output['timestamp'] = ts
 
-            converted_event = Event(event_type, ts, output)
+            converted_event = eql.Event(event_type, ts, output)
             return converted_event
 
         return normalize_callback
-

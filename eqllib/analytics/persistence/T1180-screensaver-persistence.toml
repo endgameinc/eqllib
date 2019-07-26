@@ -15,8 +15,7 @@ description = "Detect persistence via screensaver when attacker writes payload t
 
 [analytic]
 query = '''
-
-registry where key_path == "*\\Control Panel\\Desktop\\SCRNSAVE.EXE"
+registry where registry_path == "*\\Control Panel\\Desktop\\SCRNSAVE.EXE"
 
   // Ignore when the screensaver is legitimately set via the dialog
   and not event of [ process where subtype.create
@@ -24,5 +23,4 @@ registry where key_path == "*\\Control Panel\\Desktop\\SCRNSAVE.EXE"
                       and parent_process_path == "*\\explorer.exe"
                       and command_line == "* shell32.dll,Control_RunDLL desk.cpl,ScreenSaver,*"
                     ]
-
 '''
