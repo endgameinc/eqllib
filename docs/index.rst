@@ -11,13 +11,14 @@ EQL Analytics Library
 **eqllib** is a library of event based analytics, written in `EQL`_ to detect adversary behaviors identified in MITRE `ATT&CK™ <https://attack.mitre.org>`_.
 
 
-Resources
-^^^^^^^^^
+Next Steps
+^^^^^^^^^^
 
 - :doc:`Get started <guides/index>` with EQL on your own computer
 - Explore the :doc:`analytics <analytics>` that map to ATT&CK.
 - Learn how to `write queries <https://eql.readthedocs.io/query-guide>`_ in EQL syntax
 - Browse our :doc:`schemas <schemas>` and existing normalizations
+- View additional :doc:`resources <resources>`
 - Check the :doc:`license <licenses>` status
 
 
@@ -32,4 +33,5 @@ Resources
    matrices
    schemas
 
+   resources
    licenses

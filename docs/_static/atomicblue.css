@@ -69,3 +69,7 @@
 .analytic-table td p {
     margin-bottom: 0;
 }
+
+#resources a.external:hover {
+    text-decoration: underline;
+}
