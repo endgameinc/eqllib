@@ -14,8 +14,7 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-
-process where subtype.create and
-  process_name == "bitsadmin.exe" and command_line == "* /download *"
-
+process where subtype.create
+  and process_name == "bitsadmin.exe"
+  and wildcard(command_line, "* /download *", "*transfer*")
 '''

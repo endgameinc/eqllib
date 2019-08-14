@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Adversaries can modify default Microsoft Office templates in order to establish persistence"
+id = "d763c9bb-c0f7-4a4f-82b0-06105e178afa"
+name = "Office Application Startup via Template File Modification"
+os = ["windows"]
+tactics = ["Persistence"]
+techniques = ["T1137"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+file where not subtype.delete and
+  wildcard(file_path,
+           "*:\\Users\\*\\AppData\\Roaming\\Microsoft\\Templates\\Normal.dotm",
+           "*:\\Users\\AppData\\Roaming\\Microsoft\\Excel\\XLSTART\\PERSONAL.XLSB",
+           )
+'''

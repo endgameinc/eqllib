@@ -14,10 +14,8 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-
 sequence by unique_pid with maxspan=1s
-    [ registry where key_path == "*\\SOFTWARE\\Classes\\*\\*"]
-    [ registry where key_path == "*\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\GlobalAssocChangedCounter"]
-
-| unique_count process_name, key_path
+  [ registry where registry_path == "*\\SOFTWARE\\Classes\\*\\*"]
+  [ registry where registry_path == "*\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\GlobalAssocChangedCounter"]
+| unique_count process_name, registry_path
 '''

@@ -15,5 +15,6 @@ updated_date = "11/30/2018"
 [analytic]
 query = '''
 file where
-  file_name == "*:*" and (file_name == "*.dll*" or file_name == "*.exe*")
+  file_name == "*:*" and file_name != "*:Zone.Identifier" and
+  (file_name == "*.dll*" or file_name == "*.exe*")
 '''

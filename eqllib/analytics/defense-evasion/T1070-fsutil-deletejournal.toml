@@ -15,5 +15,5 @@ updated_date = "11/30/2018"
 [analytic]
 query = '''
 process where subtype.create and
-    process_name == "fsutil.exe" and command_line == "* usn *" and command_line == "* deletejournal*"
+  process_name == "fsutil.exe" and command_line == "* usn *" and command_line == "* deletejournal*"
 '''

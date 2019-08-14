@@ -21,7 +21,7 @@
 import eqllib
 name = 'eqllib'
 project = 'EQL Analytics Library'
-copyright = '2018, Endgame'
+copyright = '2019, Endgame'
 author = 'Endgame'
 
 # The short X.Y version
@@ -42,8 +42,6 @@ release = ''
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    # 'rst2pdf.pdfbuilder',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -195,8 +193,6 @@ epub_exclude_files = ['search.html']
 # Example configuration for intersphinx: refer to the Python standard library.
 
 from docutils.core import Publisher
-import docutils.utils.code_analyzer
-import pygments.lexers
 
 
 def process_programmatic_settings(self, settings_spec, settings_overrides, config_section):
@@ -211,83 +207,8 @@ Publisher.process_programmatic_settings = process_programmatic_settings
 
 
 intersphinx_mapping = {'https://docs.python.org/': None}
-from eql.ast import PipeCommand
-from eql.functions import builtins
-from pygments import token
-
-# Write a custom lexer for EQL to integrate with Pygments and get syntax highlighting
-from pygments.lexer import RegexLexer, bygroups, include
-from sphinx.highlighting import lexers
 import shutil
 
-
-class EqlLexer(RegexLexer):
-    name = 'eql'
-    aliases = ['eql']
-    filenames = ['.eql']
-
-    _sign = r'[\-+]'
-    _integer = r'\d+'
-    _float = r'\d*\.\d+([Ee][-+]?\d+)?'
-    _time_units = 's|sec\w+|m|min\w+|h|hour|hr|d|day'
-    _name = r'[a-zA-Z][_a-zA-Z0-9]*'
-    _pipe_names = set(PipeCommand.lookup.keys())
-
-    tokens = {
-        'whitespace': [
-            (r'//(\n|[\w\W]*?[^\\]\n)', token.Comment.Single),
-            (r'/[*][\w\W]*?[*]/', token.Comment.Multiline),
-            (r'/[*][\w\W]*', token.Comment.Multiline),
-            (r'\s+', token.Text),
-        ],
-        'root': [
-            include('whitespace'),
-            (r'(and|in|not|or)\b', token.Operator.Word),  # Keyword.Pseudo can also work
-            (r'(join|sequence|until|where)\b', token.Keyword),
-            (r'(const)(\s+)(%s)\b' % _name, bygroups(token.Keyword.Declaration, token.Whitespace, token.Name.Constant)),
-            (r'(macro)(\s+)(%s)\b' % _name, bygroups(token.Keyword.Declaration, token.Whitespace, token.Name.Constant)),
-            (r'(by|of|with)\b', token.Keyword.QueryModifier),
-            (r'(true|false|null)\b', token.Name.Builtin),
-
-            # built in pipes
-            (r'(\|)(\s*)(%s)' % '|'.join(_pipe_names), bygroups(token.Operator, token.Whitespace, token.Name.Function.Magic)),
-
-            # built in functions
-            (r'(%s)(\s*\()' % '|'.join(builtins), bygroups(token.Name.Function, token.Text)),
-
-            # all caps names
-            (r'[A-Z][_A-Z0-9]+\b', token.Name.Other),
-            (_name, token.Name),
-
-            # time units
-            (r'(%s|%s)[ \t]*(%s)\b' % (_float, _integer, _time_units), token.Literal.Date),
-
-            (_sign + '?' + _float, token.Number.Float),
-            (_sign + '?' + _integer, token.Number.Integer),
-
-            (r'"(\\[btnfr"\'\\]|[^\r\n"\\])*"', token.String),
-            (r"'(\\[btnfr'\"\\]|[^\r\n'\\])*'", token.String),
-            (r'\?"(\\"|[^"])*"', token.String.Regex),
-            (r"\?'(\\'|[^'])*'", token.String.Regex),
-            (r'(==|=|!=|<|<=|>=|>)', token.Operator),
-            (r'[()\[\],.]', token.Punctuation),
-        ]
-    }
-
-
-eql_lexer = EqlLexer(startinline=True)
-lexers['eql'] = eql_lexer
-_get_lexer_by_name = pygments.lexers.get_lexer_by_name
-
-
-def get_lexer_by_name(_alias, **options):
-    if _alias == 'eql':
-        return eql_lexer
-    return _get_lexer_by_name(_alias, **options)
-
-
-# Path this function to load EQL
-docutils.utils.code_analyzer.get_lexer_by_name = get_lexer_by_name
 
 # Dynamic Generation
 import os
@@ -298,8 +219,6 @@ sys.path.insert(0, os.path.abspath('..'))
 from eqllib.attack import build_attack, techniques, tactics, get_matrix
 
 config = eqllib.Configuration.default_with_analytics()
-html_context = {}
-
 build_attack()
 rst_context = {
     'analytics': config.analytics,
@@ -344,15 +263,25 @@ def setup(app):
             f.write(template.render(**rst_context).encode("utf8"))
 
         template = app.builder.templates.environment.get_template("analytic.rst")
+        root_folder = os.path.dirname(os.path.dirname(os.path.abspath(eqllib.__file__)))
+
+        # these may have been changed by RTD
+        ctx = rst_context
+        ctx.update(globals().get("html_context", {}))
+
         for analytic in config.analytics:
             with open(os.path.join("analytics", analytic.id + ".rst"), "wb") as f:
-                rendered = template.render(analytic=analytic, **rst_context)
+                repo_path = os.path.relpath(analytic.metadata["_path"], root_folder)
+                # convert any ntpath
+                repo_path = repo_path.replace("\\", "/")
+                rendered = template.render(analytic=analytic, repo_path=repo_path, **rst_context)
                 f.write(rendered.encode("utf8"))
 
         # Generate ATT&CK matrices
         template = app.builder.templates.environment.get_template("matrix.rst")
         with open(os.path.join("matrices", "enterprise.rst"), "wb") as f:
-            rendered = template.render(matrix_cells=get_matrix(), platform="Enterprise ATT&CK Matrix", **rst_context)
+            rendered = template.render(matrix_cells=get_matrix(), platform="Enterprise ATT&CK Matrix",
+                                       show_os=True, **rst_context)
             f.write(rendered.encode("utf8"))
 
         with open(os.path.join("matrices", "windows.rst"), "wb") as f:

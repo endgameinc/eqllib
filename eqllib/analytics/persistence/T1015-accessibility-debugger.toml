@@ -3,7 +3,7 @@ categories = ["detect"]
 confidence = "medium"
 contributors = ["Endgame"]
 created_date = "11/30/2018"
-description = "The Debugger registry key allows an attacker to launch intercept the execution of files, causing an a different process to be executed. This functionality is used by attackers and often targets common programs to establish persistence.\n"
+description = "The Debugger registry key allows an attacker to launch intercept the execution of files, causing a different process to be executed. This functionality is used by attackers and often targets common programs to establish persistence.\n"
 id = "279773ee-7c69-4043-870c-9ed731c7989a"
 name = "Image Debuggers for Accessibility Features"
 os = ["windows"]
@@ -14,12 +14,12 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-registry where wildcard(key_path,
+registry where wildcard(registry_path,
   "*\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\*\\Debugger",
   "*\\Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\*\\Debugger"
   )
 
-  and wildcard(key_path,
+  and wildcard(registry_path,
     // Accessibility Features
     "*\\sethc.exe\\*",
     "*\\utilman.exe\\*",

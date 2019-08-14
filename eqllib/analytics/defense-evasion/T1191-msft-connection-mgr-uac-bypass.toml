@@ -14,7 +14,6 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-
 sequence
   [ process where subtype.create and
       process_name == "cmstp.exe" and command_line =="*/s*" and command_line =="*/au*"] by unique_pid

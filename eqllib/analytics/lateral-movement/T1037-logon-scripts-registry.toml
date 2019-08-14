@@ -1,0 +1,17 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Windows allows logon scripts to be run whenever a specific user or group of users log into a system."
+id = "af99d7ec-b1c7-4648-9188-063ca27544ac"
+name = "Modification of Logon Scripts from Registry"
+os = ["windows"]
+tactics = ["Lateral Movement", "Persistence"]
+techniques = ["T1037"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+registry where registry_path == "*\\Environment\\UserInitMprLogonScript"
+'''

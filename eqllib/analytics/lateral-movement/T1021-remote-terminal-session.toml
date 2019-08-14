@@ -1,0 +1,19 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "An adversary may use Valid Accounts to log into a service specifically designed to accept remote connections."
+id = "5c310aff-d4a8-43fb-beed-b17dab1f1df0"
+name = "Remote Terminal Sessions"
+os = ["windows", "macos", "linux"]
+tactics = ["Lateral Movement"]
+techniques = ["T1021"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name in ("telnet.exe", "putty.exe", "ssh")
+| unique_count parent_process_name, command_line
+'''

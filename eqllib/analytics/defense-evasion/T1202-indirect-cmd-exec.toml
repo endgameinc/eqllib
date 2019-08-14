@@ -15,7 +15,6 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-
 process where subtype.create and
   parent_process_name in ("pcalua.exe", "forfiles.exe")
 | unique_count command_line, process_name

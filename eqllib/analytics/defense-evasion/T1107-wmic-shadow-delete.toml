@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Endgame"]
+created_date = "11/30/2018"
+description = "Identifies use of wmic for shadow copy deletion on endpoints. This commonly occurs in tandem with ransomware or other destructive attacks."
+id = "7163f069-a756-4edc-a9f2-28546dcb04b0"
+name = "Volume Shadow Copy Deletion via WMIC"
+os = ["windows"]
+references = []
+tactics = ["Impact"]
+tags = ["atomicblue"]
+techniques = ["T1490"]
+updated_date = "05/17/2019"
+
+[analytic]
+query = '''
+process where subtype.create and
+  process_name == "wmic.exe" and command_line == "* *shadowcopy* *delete*"
+'''

@@ -1,0 +1,27 @@
+[analytic.metadata]
+categories = ["hunt"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = """
+Identifies modifications to the local trusted root certificates via known Windows tools. \
+The install of a malicious root certificate would allow an attacker the ability to masquerade \
+malicious files as valid signed components from any entity (e.g. Microsoft). \
+It could also allow an attacker to decrypt SSL traffic on this machine. \
+However, software may also install root certificates for the purpose of inspecting SSL traffic."""
+id = "7a2efea5-42d9-4bb1-8e53-6e6d47167a96"
+name = "Root Certificate Install"
+os = ["windows"]
+tactics = ["Defense Evasion"]
+techniques = ["T1130"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+registry where wildcard(registry_path,
+                        "*Software\\Microsoft\\SystemCertificates\\Root\\Certificates\\*\\Blob",
+                        "*Software\\Microsoft\\SystemCertificates\\AuthRoot\\Certificates\\*\\Blob",
+                        "*Software\\Policies\\Microsoft\\SystemCertificates\\Root\\Certificates\\*\\Blob",
+                        "*Software\\Policies\\Microsoft\\SystemCertificates\\AuthRoot\\Certificates\\*\\Blob")
+| unique process_path,registry_path
+'''

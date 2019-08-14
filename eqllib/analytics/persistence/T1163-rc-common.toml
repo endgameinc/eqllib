@@ -1,0 +1,17 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "During the boot process, macOS executes source /etc/rc.common, which is a shell script containing various utility functions. Adversaries can use the rc.common file as a way to hide code for persistence."
+id = "11db63f4-15eb-47f7-8e69-e4879bace2b0"
+name = "Modification of rc.common Script"
+os = ["macos"]
+tactics = ["Persistence"]
+techniques = ["T1163"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+file where file_name == "rc.common"
+'''

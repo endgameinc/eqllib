@@ -15,10 +15,10 @@ updated_date = "11/30/2018"
 [analytic]
 query = '''
 registry where
-  key_path == "*\\MSCFile\\shell\\open\\command\\" and
+  registry_path == "*\\MSCFile\\shell\\open\\command\\" and
 
   // Ignore cases where the original avalue is restored
-  bytes_written_string != '*\\system32\\mmc.exe \"%1\"*'
+  registry_data != '*\\system32\\mmc.exe \"%1\"*'
 
   // SYSTEM will never need to bypass uac
   and not user_sid in ("S-1-5-18", "S-1-5-19", "S-1-5-20")

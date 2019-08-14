@@ -1,3 +1,4 @@
+"""Loader for domains, sources, and analytics."""
 from __future__ import unicode_literals
 
 import os
@@ -15,6 +16,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Configuration(object):
+    """Library configuration of domains, sources, and analytics."""
+
     _default = None
 
     def __init__(self, parent=None):  # type: (Configuration) -> None
@@ -39,9 +42,9 @@ class Configuration(object):
             self.analytic_lookup = {}
             self.analytics = []
             self.sources = {}
-            self.normalizers = {}
+            self.normalizers = {}  # type: dict[str, Normalizer]
 
-    def add_domain(self, domain):
+    def add_domain(self, domain):  # type: (dict) -> None
         domain_schema = make_normalization_schema(domain)
         name = domain_schema.domain_name
 
@@ -68,7 +71,7 @@ class Configuration(object):
 
         self.add_source(source)
 
-    def add_source(self, source):
+    def add_source(self, source):  # type: (dict) -> None
         BaseNormalization.validate(source)
         domain_schema = self.domain_schemas[source['domain']]
         normalizer = Normalizer(domain_schema.validate(source))
@@ -78,12 +81,14 @@ class Configuration(object):
     def get_analytic(self, analytic_id):
         return self.analytic_lookup[analytic_id]
 
-    def add_analytic(self, analytic):
+    def add_analytic(self, analytic, path=None):  # type: (dict, str) -> None
         if isinstance(analytic, dict) and list(analytic.keys()) == ['analytic']:
             analytic = analytic['analytic']
 
         Analytic.validate(analytic)
-        analytic['metadata']['_source'] = analytic['query']
+        analytic['metadata']['_source'] = '\n'.join(l.rstrip() for l in analytic['query'].strip().splitlines())
+        if path:
+            analytic['metadata']['_path'] = path
         analytic = eql.ast.EqlAnalytic(metadata=analytic['metadata'], query=eql.parse_query(analytic['query']))
         self.analytic_lookup[analytic.id] = analytic
         self.analytics.append(analytic)
@@ -93,22 +98,22 @@ class Configuration(object):
                 self.coverage[tactic][technique].append(analytic)
 
     @classmethod
-    def default(cls):
+    def default(cls):  # type: () -> Configuration
         if not cls._default:
             self = cls.from_directories(os.path.join(CURRENT_DIR, "domains"),
-                                        os.path.join(CURRENT_DIR, "sources"),
-                                        None)
+                                        os.path.join(CURRENT_DIR, "sources"))
             cls._default = self
         return cls._default
 
     @classmethod
-    def default_with_analytics(cls):
+    def default_with_analytics(cls):  # type: () -> Configuration
         return cls.from_directories(os.path.join(CURRENT_DIR, "domains"),
                                     os.path.join(CURRENT_DIR, "sources"),
                                     os.path.join(CURRENT_DIR, "analytics"))
 
     @classmethod
     def from_directories(cls, domain_dir=None, source_dir=None, analytics_dir=None, parent=None):
+        # type: (str, str, str, Configuration) -> Configuration
         self = cls(parent=parent)
         for domain_path in sorted(recursive_glob(domain_dir, "*.toml")):
             self.add_domain(toml.load(domain_path))
@@ -116,9 +121,7 @@ class Configuration(object):
         for source_path in sorted(recursive_glob(source_dir, "*.toml")):
             self.add_source(toml.load(source_path))
 
-        for analytic in sorted(recursive_glob(analytics_dir, "*.toml")):
-            self.add_analytic(toml.load(analytic))
+        for analytic_path in sorted(recursive_glob(analytics_dir, "*.toml")):
+            self.add_analytic(toml.load(analytic_path), analytic_path)
 
         return self
-
-

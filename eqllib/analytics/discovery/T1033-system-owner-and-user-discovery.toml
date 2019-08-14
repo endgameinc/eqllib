@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Windows contains several built-in commands to report the active user. These may be used by an actor to learn privileges levels or determine if a session is active."
+id = "4d8563cb-f6cb-4758-9255-92479260031f"
+name = "System Owner and User Discovery"
+os = ["windows"]
+tactics = ["Discovery"]
+techniques = ["T1033"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and (
+  process_name in ("hostname.exe", "whoami.exe", "systeminfo.exe", "quser.exe") or
+  process_name == "cmd.exe" and wildcard(command_line, "*echo *%USERNAME%*", "*echo *%USERDOMAIN%*")
+)
+'''

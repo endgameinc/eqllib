@@ -17,10 +17,10 @@ updated_date = "11/30/2018"
 
 [analytic]
 query = '''
-registry where wildcard(key_path,
+registry where wildcard(registry_path,
     "*\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\AppInit_Dlls",
     "*\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows\\AppInit_Dlls"
   )
   and not wildcard(process_path, "*\\system32\\msiexec.exe", "*\\syswow64\\msiexec.exe")
-| unique bytes_written_string
+| unique registry_data
 '''

@@ -118,3 +118,5 @@ eqllib-env
 docs/analytics
 /docs/links.rst
 /docs/matrices/
+
+junit.xml

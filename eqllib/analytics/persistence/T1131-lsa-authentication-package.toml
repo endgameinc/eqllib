@@ -1,0 +1,18 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Adversaries can use the auto-start mechanism provided by LSA Authentication Packages for persistence."
+id = "077b1d1b-34ff-42d2-bd48-b0e6cdd1a359"
+name = "LSA Authentication Package"
+os = ["windows"]
+tactics = ["Persistence"]
+techniques = ["T1131"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+registry where hive.hklm and 
+  registry_path == "*ControlSet*\\Control\\Lsa\\Authentication Packages*"
+'''

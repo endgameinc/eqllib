@@ -1,0 +1,22 @@
+[analytic.metadata]
+categories = ["enrich"]
+confidence = "low"
+contributors = ["Endgame"]
+created_date = "7/26/2019"
+description = "Build-in tools can be used to enumerate and discover network environment on unix systems."
+id = "fd7a0c56-60fa-4f14-8c8e-0e41ad955725"
+name = "Discovery of Network Environment via Built-in Tools"
+os = ["macos", "linux"]
+tactics = ["Discovery"]
+techniques = ["T1016"]
+updated_date = "7/26/2019"
+
+[analytic]
+query = '''
+process where subtype.create and (
+  process_name in ("ifconfig", "arp", "networkctl", "netstat", "route", "ntop") or (
+    process_name in ('cat', 'more', 'less', 'vim', 'vi', 'nano', 'gedit') and
+    command_line =="* /etc/hosts*"
+  )
+)
+'''

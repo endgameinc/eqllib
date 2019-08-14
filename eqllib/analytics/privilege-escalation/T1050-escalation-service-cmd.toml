@@ -15,6 +15,6 @@ updated_date = "11/30/2018"
 [analytic]
 query = '''
 registry where
-    key_path == "*\\System\\*ControlSet*\\Services\\*\\ImagePath"
-    and wildcard(bytes_written_string, "*%COMSPEC%*", "*cmd.exe*", "*powershell*", "*cmd *")
+    registry_path == "*\\System\\*ControlSet*\\Services\\*\\ImagePath"
+    and wildcard(registry_data, "*%COMSPEC%*", "*cmd.exe*", "*powershell*", "*cmd *")
 '''
