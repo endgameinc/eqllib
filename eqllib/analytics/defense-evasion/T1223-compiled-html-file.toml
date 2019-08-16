@@ -7,7 +7,7 @@ description = "Identifies usage of hh.exe when executing .chm files."
 id = "b25aa548-7937-11e9-8f5c-d46d6d62a49e"
 name = "HH.exe execution"
 os = ["windows"]
-tactics = ["Compiled HTML File"]
+tactics = ["Defense Evasion"]
 techniques = ["T1223"]
 updated_date = "08/08/2019"
 
