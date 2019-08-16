@@ -1,0 +1,20 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["David French"]
+created_date = "8/16/2019"
+description = "Identifies the creation of a scheduled task via a Microsoft Office application to establish persistence."
+id = "8e98bf09-e662-4908-b68e-5c96ad5c6860"
+name = "Scheduled Task Creation via Microsoft Office Application"
+os = ["windows"]
+tactics = ["Persistence"]
+techniques = ["T1053"]
+updated_date = "8/16/2019"
+references = ["https://medium.com/threatpunter/detecting-adversary-tradecraft-with-image-load-event-logging-8de93338c16", "https://twitter.com/DanielStepanic/status/1161983008582393856?s=20", "https://twitter.com/SBousseaden/status/1161919993652662273?s=20"]
+
+[analytic]
+query = '''
+image_load where
+  process_name in ("excel.exe", "winword.exe", "powerpnt.exe", "outlook.exe") and
+  image_name == "taskschd.dll"
+'''
