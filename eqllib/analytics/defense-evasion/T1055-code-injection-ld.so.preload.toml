@@ -1,0 +1,18 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Tony Lambert"]
+created_date = "05/17/2019"
+description = "Identifies modification of ld.so.preload for shared object injection. This technique is used by attackers to load arbitrary code into processes."
+id = "fd9b987a-1101-4ed3-bda6-a70300eaf57e"
+name = "Modification of ld.so.preload"
+os = ["linux"]
+tactics = ["Defense Evasion"]
+tags = ["atomicblue"]
+techniques = ["T1055"]
+updated_date = "05/17/2019"
+
+[analytic]
+query = '''
+file where file_path="/etc/ld.so.preload"
+'''
