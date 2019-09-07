@@ -59,6 +59,7 @@ terminate = "EventId == 5"
 [events.process.mapping]
 command_line = "CommandLine"
 logon_id = "number(LogonId)"
+original_file_name = "OriginalFileName"
 parent_process_name = "baseName(ParentImage)"
 parent_process_path = "ParentImage"
 ppid = "number(ParentProcessId)"

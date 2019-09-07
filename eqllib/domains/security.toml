@@ -31,6 +31,7 @@ fields = [
 fields = [
   "command_line",
   "logon_id",
+  "original_file_name",
   "parent_process_name",
   "parent_process_path",
   "ppid",
