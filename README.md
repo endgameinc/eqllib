@@ -1,6 +1,7 @@
 # EQL Analytics Library
 [![Library Link](https://readthedocs.org/projects/eqllib/badge/?version=latest)](https://eqllib.readthedocs.io/en/latest/?badge=latest)
 [![Gitter](https://badges.gitter.im/eventquerylang/community.svg)](https://gitter.im/eventquerylang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Twitter Follow](https://img.shields.io/twitter/follow/eventquerylang.svg?style=social)](https://twitter.com/eventquerylang)
 
 [![alt text](docs/_static/eql-whoami.jpg "What is EQL")](https://eqllib.readthedocs.io)
 
