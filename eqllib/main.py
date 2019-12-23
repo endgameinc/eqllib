@@ -56,7 +56,7 @@ def print_table(results, columns):
     print(table)
 
 
-def run_query(data_source, query, input_file, file_format, encoding, config):
+def run_query(data_source, query, input_file, file_format, encoding, config, columns):
     """Convert a normalized query to a specific data source."""
     if data_source is None:
         data_source = next(iter(config.domains))
