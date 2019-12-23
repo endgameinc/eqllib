@@ -1,5 +1,5 @@
 include eqllib/enterprise-attack.json.gz
 
-recursive-include eqllib/domains/ *.toml
-recursive-include eqllib/sources/ *.toml
-recursive-include eqllib/analytics/ *.toml
+recursive-include eqllib/domains *.toml
+recursive-include eqllib/sources *.toml
+recursive-include eqllib/analytics *.toml
