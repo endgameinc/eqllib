@@ -73,7 +73,7 @@ install_requires = [
     "toml~=0.9",
     "eql~=0.7",
     "jsl~=0.2",
-    "jsonschema",
+    "jsonschema==2.6.0",
 ]
 test_requires = [
     'pytest~=3.8.2',
