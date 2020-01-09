@@ -14,7 +14,7 @@ updated_date = "7/26/2019"
 [analytic]
 query = '''
 process where subtype.create and (
-  process_name == "systeminfo.exe" or (
-    process_name == "cmd.exe" and command_line == "* ver*"
-  )
+  process_name in ("systeminfo.exe"  "hostname.exe") or
+  process_name == "cmd.exe" and wildcard(command_line, "* ver*", "*%COMPUTERNAME%*", "*%PROCESSOR_*%")
+)
 '''
