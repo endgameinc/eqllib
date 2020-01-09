@@ -13,8 +13,8 @@ updated_date = "7/26/2019"
 
 [analytic]
 query = '''
-process where subtype.create and
-  process_name in ("systeminfo", "hostname") or (
+process where subtype.create and (
+  process_name == "systeminfo.exe" or (
     process_name == "cmd.exe" and command_line == "* ver*"
   )
 '''
