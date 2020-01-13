@@ -1,0 +1,22 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Daniel Stepanic"]
+created_date = "12/04/2019"
+description = "Identifies initial system enumeration and discovery commands tied to remote access tools that leverage ``rundll32.exe`."
+id = "35d27938-d13d-4bcd-9be7-3a69d208c63f"
+name = "Discovery and Enumeration of System Information via Rundll32"
+os = ["windows"]
+tactics = ["Discovery"]
+tags = ["koadic"]
+techniques = ["T1087","T1096","T1033"]
+updated_date = "12/04/2019"
+references = ["https://www.elastic.co/blog/embracing-offensive-tooling-building-detections-against-koadic-using-eql"]
+
+[analytic]
+query = '''
+sequence with maxspan=1h
+  [process where subtype.create and process_name == "rundll32.exe"] by unique_pid
+  [network where subtype.outgoing and process_name == "rundll32.exe"] by unique_pid
+  [process where subtype.create and parent_process_name == "rundll32.exe"] by unique_ppid
+'''

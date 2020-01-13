@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "medium"
+contributors = ["Daniel Stepanic"]
+created_date = "12/04/2019"
+description = "Identifies the execution of ``mshta.exe`` as a descendant of a Microsoft Office process."
+id = "d49fc9fe-df80-416d-a861-0be02bef0df5"
+name = "Mshta Descendant of Microsoft Office"
+os = ["windows"]
+tactics = ["Execution", "Defense Evasion", "Command and Control"]
+tags = ["koadic"]
+techniques = ["T1170"]
+updated_date = "12/04/2019"
+references = ["https://www.elastic.co/blog/embracing-offensive-tooling-building-detections-against-koadic-using-eql"]
+
+[analytic]
+query = '''
+process where subtype.create and process_name == "mshta.exe"
+  and descendant of
+    [process where process_name in ("outlook.exe", "winword.exe", "excel.exe", "powerpnt.exe")]
+'''

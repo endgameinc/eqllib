@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "high"
+contributors = ["Daniel Stepanic"]
+created_date = "12/04/2019"
+description = "Identifies an executable file written by a Microsoft Office application where that same executable is later ran as it's own process. This behavior can be indicative of suspicious activity possibly tied to macro objects or technologies used for command execution such as Dynamic Data Exchange (DDE)."
+id = "2b512bec-b28d-4a84-9253-2c691bedb7bc"
+name = "Executable Written and Executed by Microsoft Office Applications"
+os = ["windows"]
+tactics = ["Execution"]
+tags = ["koadic"]
+techniques = ["T1204","T1173"]
+updated_date = "12/04/2019"
+references = ["https://www.elastic.co/blog/embracing-offensive-tooling-building-detections-against-koadic-using-eql"]
+
+[analytic]
+query = '''
+sequence with maxspan=3d
+  [file where file_name == "*.exe" and process_name in ("winword.exe", "excel.exe", "powerpnt.exe")] by file_path
+  [process where true] by process_path
+'''
