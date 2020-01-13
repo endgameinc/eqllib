@@ -1,0 +1,60 @@
+name = "Endgame Platform"
+strict = false
+os_types = ["linux", "mac", "windows"]
+domain = "security"
+filter_query = false
+
+[timestamp]
+field = "timestamp"
+format = "filetime"
+
+# other fields are already normalized to the model
+[fields.mapping]
+user = 'concat(user_domain, "\\", user_name)'
+
+[events.image_load]
+filter = 'event_type_full == "image_load_event"'
+
+[events.file]
+filter = 'event_type_full == "file_event"'
+
+[events.file.enum.subtype]
+create = 'opcode in (0, 3)'
+modify = 'opcode in (1, 4)'
+delete = 'opcode == 2'
+
+[events.network]
+filter = 'event_type_full == "network_event"'
+
+[events.network.enum.subtype]
+outgoing = 'opcode in (12, 55)'
+incoming = 'opcode in (15, 57)'
+disconnect = 'opcode in (13, 56)'
+
+[events.process]
+filter = 'event_type_full == "process_event"'
+
+[events.process.enum.subtype]
+create = 'opcode in (1, 5)'
+terminate = 'opcode == 2'
+
+[events.registry]
+filter = 'event_type_full == "registry_event"'
+
+[events.registry.mapping]
+registry_data = "bytes_written_string"
+registry_key = 'dirName(key_path)'
+registry_value = 'baseName(key_path)'
+registry_path = 'key_path'
+
+[events.registry.enum.hive]
+hku = 'key_path == "\\REGISTRY\\HKEY_USER\\*"'
+hklm = 'key_path == "\\REGISTRY\\MACHINE\\*"'
+
+[events.registry.enum.registry_type]
+dword = 'key_type in ("dword", "dwordBigEndian")'
+qword = 'key_type == "qword"'
+string = 'key_type == "sz"'
+expand_string = 'key_type == "expandSz"'
+multi_string = 'key_type == "multiSz"'
+binary = 'key_type == "binary"'
