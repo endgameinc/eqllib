@@ -40,24 +40,49 @@ class QueryNormalizer(DepthFirstWalker):
             event_query.query = (self.normalizer.event_filters[self.current_event_type] & event_query.query).optimize()
         return event_query
 
+    def _scope_to_event(self, node, event_index):  # type: (BaseNode, int) -> BaseNode
+        """Scope all fields within an AST to events[event_index]."""
+        if event_index is not None and len(self.output_event_types) > 1:
+            node = self.copy_node(node)
+
+            for nested_field in node:
+                if isinstance(nested_field, Field) and event_index is not None:
+                    subpath = [event_index] + nested_field.full_path
+                    nested_field.base = "events"
+                    nested_field.path = subpath
+
+        return node
+
     def _walk_field(self, field):
         """Expand fields and enums to the target name or expression."""
-        name = field.base
-        enums = self.normalizer.event_enums.get(self.current_event_type, {}).get(name, {})
-        path = field.path
+        if self.in_pipes:
+            event_index, event_field = field.query_multiple_events()
+            event_type = self.output_event_types[event_index]
+        else:
+            event_index = None
+            event_field = field
+            event_type = self.current_event_type
+
+        name = event_field.base
+        enums = self.normalizer.event_enums.get(event_type, {}).get(name, {})
+        path = event_field.path
 
         if len(path) == 1 and path[0] in enums:
-            return enums[path[0]]
+            value = enums[path[0]]
+            value = self._scope_to_event(value, event_index)
+            return value
 
         # Also, replace a field using fields.mapping
-        default = Null() if self.normalizer.strict else field
+        default = Null() if self.normalizer.strict else event_field
         global_converted = self.normalizer.field_mapping.get(name)
-        event_converted = self.normalizer.event_field_mapping.get(self.current_event_type, {}).get(name)
+        event_converted = self.normalizer.event_field_mapping.get(event_type, {}).get(name)
 
         converted = event_converted or global_converted or default
 
-        if isinstance(converted, Field) and field.path:
+        if isinstance(converted, Field) and path:
             converted.path = path
+
+        converted = self._scope_to_event(converted, event_index)
         return converted
 
     def _walk_function_call(self, node):
@@ -96,7 +121,7 @@ class QueryNormalizer(DepthFirstWalker):
             elif func.name == 'coalesce' and isinstance(args[0], Field):
                 return Or([Comparison(a, Comparison.EQ, comparison.right) for a in args])
             else:
-                return
+                return comparison
 
             if comparison.comparator == Comparison.EQ:
                 return func
@@ -147,14 +172,14 @@ class Normalizer(object):
         # Parse out the EQL field mapping
         with eql.ParserConfig(custom_functions=extra_functions.values()):
             self.field_mapping = {field: eql.parse_expression(eql_text)
-                                  for field, eql_text in self.config['fields']['mapping'].items()}
+                                  for field, eql_text in self.config.get('fields', {}).get('mapping', {}).items()}
 
             # Parse out the EQL event types
             self.event_filters = OrderedDict()
             self.event_enums = OrderedDict()
             self.event_field_mapping = OrderedDict()
 
-            for event_name, event_config in self.config['events'].items():
+            for event_name, event_config in self.config.get('events', {}).items():
                 self.event_filters[event_name] = eql.parse_expression(event_config['filter'])
                 self.event_enums[event_name] = OrderedDict()
                 self.event_field_mapping[event_name] = OrderedDict()
@@ -180,7 +205,7 @@ class Normalizer(object):
 
     def get_scoper(self):
         """Get a nested object for an EQL field."""
-        scope = self.config['fields'].get('scope')
+        scope = self.config.get('fields', {}).get('scope')
         if scope is None:
             return
 

@@ -163,7 +163,7 @@ def survey_analytics(data_source, input_file, file_format, encoding, analytics, 
         for analytic in config.analytics:
             analytic = domain.normalize_ast(analytic)
             engine.add_analytic(analytic)
- 
+
         engine.add_output_hook(include_analytic_info)
         engine.stream_events(normalized_iter)
 
