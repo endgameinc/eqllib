@@ -16,5 +16,5 @@ updated_date = "11/30/2018"
 query = '''
 process where subtype.create and
   process_name == "certutil.exe" and
-  (command_line == "*encode *" and command_line == "*decode *")
+  (command_line == "*encode *" or command_line == "*decode *")
 '''
