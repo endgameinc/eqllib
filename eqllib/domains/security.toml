@@ -12,6 +12,9 @@ fields = [
   "user_sid",
 ]
 
+[events.dns]
+fields = ["query_name"]
+
 [events.file]
 fields = [
   "file_name",

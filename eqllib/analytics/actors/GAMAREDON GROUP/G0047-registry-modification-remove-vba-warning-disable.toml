@@ -1,0 +1,23 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Daniel Stepanic"]
+created_date = "02/12/2020"
+description = "Adversaries may attempt to lower security controls around macro-enabled objects via malicious documents. By modifying these settings such as trusting future macros or disabling security warnings, adversaries increase their chances of success to re-gain access to machine."
+id = "53745477-dafc-43ba-8eaf-6578a6758794"
+name = "Suspicious MS Office Registry Modifications"
+os = ["windows"]
+tactics = ["Defense Evasion"]
+tags = ["Gamaredon Group"]
+techniques = ["T1112"]
+updated_date = "02/12/2020"
+references = ["https://www.elastic.co/blog/playing-defense-against-gamaredon-group"]
+
+[analytic]
+query = '''
+sequence by unique_pid
+  [process where process_name in ("winword.exe", "excel.exe", "powerpnt.exe")]
+  [registry where wildcard(registry_path, "*\\Software\\Microsoft\\Office\\*\\Word\\Security\\AccessVBOM",
+                                          "*\\Software\\Microsoft\\Office\\*\\Word\\Security\\VBAWarnings")]
+| unique unique_pid
+'''

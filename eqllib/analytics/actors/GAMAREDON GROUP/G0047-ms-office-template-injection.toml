@@ -1,0 +1,22 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Daniel Stepanic"]
+created_date = "02/12/2020"
+description = "Microsoft's Open Office XML (OOXML) specification defines an XML-based format for Office documents. Adversaries may abuse this technology to initially conceal malicious code to be executed via documents."
+id = "bba65411-cf61-4d7c-a9a8-a2021684e9ca"
+name = "MS Office Template Injection"
+os = ["windows"]
+tactics = ["Defense Evasion"]
+tags = ["Gamaredon Group"]
+techniques = ["T1221"]
+updated_date = "02/12/2020"
+references = ["https://www.elastic.co/blog/playing-defense-against-gamaredon-group"]
+
+[analytic]
+query = '''
+sequence by unique_pid
+  [process where process_name in ("winword.exe", "excel.exe", "powerpnt.exe")]
+  [dns where not wildcard(query_name, "*.microsoft.com", "*.skype.com")]
+  [network where true]
+'''

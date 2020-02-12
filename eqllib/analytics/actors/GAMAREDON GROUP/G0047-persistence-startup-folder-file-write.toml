@@ -1,0 +1,23 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Daniel Stepanic"]
+created_date = "02/12/2020"
+description = "Adversaries abuse common persistence mechanisms such as placing their malware/implants into a compromised user's startup folder. This detection identifies GAMAREDON GROUP's technique of placing shortcut and VBScript files into this folder."
+id = "5430be26-4019-4bc3-bb04-056019304dc9"
+name = "Startup Folder Persistence with Shortcut/VBScript Files"
+os = ["windows"]
+tactics = ["Persistence"]
+tags = ["Gamaredon Group"]
+techniques = ["T1060"]
+updated_date = "02/12/2020"
+references = ["https://www.elastic.co/blog/playing-defense-against-gamaredon-group"]
+
+[analytic]
+query = '''
+file where subtype.create 
+  and process_name in ("powershell.exe", "wscript.exe", "cscript.exe", "cmd.exe", "winword.exe", "excel.exe", "powerpnt.exe")
+  and (file_path == "*\\Programs\\Startup\\*.lnk" or
+       file_path == "*\\Programs\\Startup\\*.vbs")
+| unique process_name, file_path, user_name
+'''

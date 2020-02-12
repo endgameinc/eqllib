@@ -1,0 +1,21 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "low"
+contributors = ["Daniel Stepanic"]
+created_date = "02/12/2020"
+description = "Identifies non-browser processes making DNS requests to Dynamic DNS Providers used by GAMAREDON GROUP."
+id = "de828f75-33bb-41ab-bc52-92dc2e0ef58b"
+name = "Non-browser processes making DNS requests to Dynamic DNS Providers"
+os = ["windows"]
+tactics = ["Command and Control"]
+tags = ["Gamaredon Group"]
+techniques = ["T1071"]
+updated_date = "02/12/2020"
+references = ["https://www.elastic.co/blog/playing-defense-against-gamaredon-group"]
+
+[analytic]
+query = '''
+dns where wildcard(query_name, "*.ddns.net", "*.hopto.org", "*.bounceme.net") and
+  process_name not in ("chrome.exe","iexplore.exe", "firefox.exe")
+| unique unique_pid
+'''
