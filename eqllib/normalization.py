@@ -1,5 +1,5 @@
 """Normalization utilities for EQL compatibility."""
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 import datetime
 from collections import OrderedDict
 import eql
@@ -85,13 +85,27 @@ class QueryNormalizer(DepthFirstWalker):
         converted = self._scope_to_event(converted, event_index)
         return converted
 
+    def _wildcard_coalesce(self, coalesce_arguments, strings):
+        wildcards = [String(s) for s in strings]
+        return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
+
+    def _wildcard_dirname(self, coalesce_arguments, strings):
+        wildcards = [String(s.rstrip("*") + "*\\*") for s in strings]
+        return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
+
+    def _wildcard_basename(self, coalesce_arguments, strings):
+        wildcards = [String("*\\*" + s.lstrip("*")) for s in strings]
+        return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
+
     def _walk_function_call(self, node):
         """Convert wildcards between multiple fields."""
         if node.name == 'wildcard' and len(node.arguments) >= 2:
             base = node.arguments[0]
-            if isinstance(base, FunctionCall) and base.name == 'coalesce':
-                coalesce_args = base.arguments
-                return Or([FunctionCall('wildcard', [c] + node.arguments[1:]) for c in coalesce_args])
+            if isinstance(base, FunctionCall):
+                method = getattr(self, "_wildcard_" + base.name.lower(), None)
+                if callable(method):
+                    strings = [n.value for n in node.arguments[1:]]
+                    return method(base.arguments, strings)
         return node
 
     def _walk_comparison(self, comparison):
@@ -153,7 +167,22 @@ class QueryNormalizer(DepthFirstWalker):
                     return Or([InSet(a, set_lookup.container) for a in args])
         elif not set_lookup.is_dynamic():
             return set_lookup.split_literals()
+
         return set_lookup
+
+    def _walk_piped_query(self, node):
+        for tree in node:
+            if isinstance(tree, FunctionCall) and tree.name in extra_functions:
+                raise eql.EqlCompileError("Failed to normalize {}".format(tree))
+        return node
+
+    def _walk_pipe_command(self, node):
+        """Replace file-based arguments to functions with the full path."""
+        for i, argument in enumerate(node.arguments):
+            if isinstance(argument, FunctionCall) and argument.name in ("baseName", "dirName"):
+                node.arguments[i] = argument.arguments[0]
+
+        return node
 
 
 class Normalizer(object):
