@@ -89,13 +89,13 @@ class QueryNormalizer(DepthFirstWalker):
         wildcards = [String(s) for s in strings]
         return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
 
-    def _wildcard_dirname(self, coalesce_arguments, strings):
+    def _wildcard_dirname(self, dirname_args, strings):
         wildcards = [String(s.rstrip("*") + "*\\*") for s in strings]
-        return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
+        return FunctionCall('wildcard', dirname_args + wildcards)
 
-    def _wildcard_basename(self, coalesce_arguments, strings):
+    def _wildcard_basename(self, basename_args, strings):
         wildcards = [String("*\\*" + s.lstrip("*")) for s in strings]
-        return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
+        return FunctionCall('wildcard', basename_args + wildcards)
 
     def _walk_function_call(self, node):
         """Convert wildcards between multiple fields."""
