@@ -13,11 +13,11 @@ class TestNormalization(unittest.TestCase):
 
     def assert_normalization_match(self, standard_query, converted, source="Microsoft Sysmon"):
         parsed_original = eql.parse_query(standard_query)
-        parsed_sysmon = eql.parse_query(converted)
+        parsed_converted = eql.parse_query(converted)
 
         normalizer = self.config.normalizers[source]
         converted = normalizer.normalize_ast(parsed_original)
-        self.assertEqual(str(parsed_sysmon), str(converted))
+        self.assertEqual(str(parsed_converted), str(converted))
 
     def test_normalize_kv(self):
         original_query = r"process where process_path == 'C:\\Windows\\System32\\cmd.exe'"
@@ -85,3 +85,25 @@ class TestNormalization(unittest.TestCase):
             query = query["query"]
             normalized = normalizer.normalize_ast(query)
             self.assertEqual(query, normalized)
+
+    def test_normalize_wildcard_basename(self):
+        original = "registry where registry_value == '*foo*'"
+        converted = "registry where key_path == '*\\\\*foo*'"
+        self.assert_normalization_match(original, converted, source="Endgame Platform")
+
+    def test_normalize_wildcard_dirname(self):
+        original = "registry where registry_key == '*foo*'"
+        converted = "registry where key_path == '*foo*\\\\*'"
+        self.assert_normalization_match(original, converted, source="Endgame Platform")
+
+    def test_normalize_wildcard_dirname_argument(self):
+        original = "registry where true | unique registry_key"
+        converted = "registry where true | unique key_path"
+        self.assert_normalization_match(original, converted, source="Endgame Platform")
+
+    def test_invalid_normalization(self):
+        original = eql.parse_query("registry where concat(registry_key) == 'blah'")
+
+        with self.assertRaises(eql.EqlCompileError):
+            normalizer = self.config.normalizers["Endgame Platform"]
+            normalizer.normalize_ast(original)
