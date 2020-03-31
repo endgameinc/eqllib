@@ -86,14 +86,17 @@ class QueryNormalizer(DepthFirstWalker):
         return converted
 
     def _wildcard_coalesce(self, coalesce_arguments, strings):
+        """Convert coalesce(a,b,c) == "*wc*" to coalesce(a, "*wc*") or coalesce(b, "*wc") ..."""
         wildcards = [String(s) for s in strings]
         return Or([FunctionCall('wildcard', [c] + wildcards) for c in coalesce_arguments])
 
     def _wildcard_dirname(self, dirname_args, strings):
+        r"""Convert directory == '*foo*' to path == '*foo*\\*'."""
         wildcards = [String(s.rstrip("*") + "*\\*") for s in strings]
         return FunctionCall('wildcard', dirname_args + wildcards)
 
     def _wildcard_basename(self, basename_args, strings):
+        r"""Convert name == '*foo*' to path == '*\\*foo*'."""
         wildcards = [String("*\\*" + s.lstrip("*")) for s in strings]
         return FunctionCall('wildcard', basename_args + wildcards)
 
@@ -144,6 +147,7 @@ class QueryNormalizer(DepthFirstWalker):
         return comparison
 
     def _walk_in_set(self, set_lookup):
+        """Convert wildcard checks for `in` checks."""
         if set_lookup.is_literal():
             expression = set_lookup.expression
             if isinstance(expression, FunctionCall):
@@ -171,6 +175,7 @@ class QueryNormalizer(DepthFirstWalker):
         return set_lookup
 
     def _walk_piped_query(self, node):
+        """Catch queries to make sure that no normalization functions are present."""
         for tree in node:
             if isinstance(tree, FunctionCall) and tree.name in extra_functions:
                 raise eql.EqlCompileError("Failed to normalize {}".format(tree))
