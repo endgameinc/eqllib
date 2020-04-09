@@ -15,7 +15,7 @@ references = ["https://www.elastic.co/blog/embracing-offensive-tooling-building-
 
 [analytic]
 query = '''
-sequence with maxspan=5s by unique_pid
+sequence by unique_pid with maxspan=5s
   [process where subtype.create and process_name == "cmd.exe" and command_line == "*>*" and
     descendant of [process where process_name == "wmiprvse.exe"]]
   [file where subtype.create and wildcard(file_name, "*.txt", "*.log")]
