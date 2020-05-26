@@ -38,7 +38,7 @@ class TestNormalization(unittest.TestCase):
 
     def test_normalize_missing_field(self):
         original_query = r"process where missing_field == 'abc.exe'"
-        sysmon_query = r"process where false"
+        sysmon_query = r"process where null"
         self.assert_normalization_match(original_query, sysmon_query)
 
     def test_normalize_sequence_with_pipe_fields_sysmon(self):

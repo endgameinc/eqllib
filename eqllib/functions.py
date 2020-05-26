@@ -2,7 +2,7 @@
 import ntpath
 
 from eql.functions import FunctionSignature
-from eql.types import STRING, NUMBER, PRIMITIVES
+from eql.types import TypeHint
 
 extra_functions = {}
 
@@ -18,7 +18,7 @@ class BaseName(FunctionSignature):
     """Get the base name of an image."""
 
     name = "baseName"
-    argument_types = [STRING]
+    argument_types = [TypeHint.String]
 
     @classmethod
     def run(cls, path):
@@ -31,8 +31,8 @@ class DirName(FunctionSignature):
     """Get the directory name from a path."""
 
     name = "dirName"
-    argument_types = [STRING]
-    return_value = STRING
+    argument_types = [TypeHint.String]
+    return_value = TypeHint.String
 
     @classmethod
     def run(cls, path):
@@ -45,8 +45,8 @@ class Split(FunctionSignature):
     """Get the directory name from a path."""
 
     name = "split"
-    argument_types = [STRING, STRING, NUMBER]
-    return_value = STRING
+    argument_types = [TypeHint.String, TypeHint.String, TypeHint.Numeric]
+    return_value = TypeHint.String
 
     @classmethod
     def run(cls, value, delim, pos):
@@ -62,8 +62,8 @@ class Coalesce(FunctionSignature):
     """Get the directory name from a path."""
 
     name = "coalesce"
-    additional_types = PRIMITIVES
-    return_value = PRIMITIVES
+    additional_types = TypeHint.Unknown
+    return_value = TypeHint.Unknown
 
     @classmethod
     def run(cls, *args):
