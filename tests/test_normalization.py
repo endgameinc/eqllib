@@ -1,5 +1,7 @@
 """Tests for normalization of data and queries."""
 import unittest
+import eql
+import eql.etc
 import eql.tests
 import eqllib
 
@@ -107,3 +109,11 @@ class TestNormalization(unittest.TestCase):
         with self.assertRaises(eql.EqlCompileError):
             normalizer = self.config.normalizers["Endgame Platform"]
             normalizer.normalize_ast(original)
+
+    def test_unmodified_unique_count(self):
+        original = eql.parse_query("""
+        process where true | unique_count process_name | filter count < 5
+        """)
+
+        normalizer = self.config.normalizers["Endgame Platform"]
+        normalizer.normalize_ast(original)
