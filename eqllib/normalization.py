@@ -35,11 +35,6 @@ class QueryNormalizer(DepthFirstWalker):
             node = node.optimize()
         return node
 
-    @contextmanager
-    def set_context(self, node):
-        """Replace the original set_context, since we don't need it here."""
-        yield node
-
     def _walk_event_query(self, event_query):
         """Add filter_query to the converted condition."""
         if self.normalizer.config.get('filter_query') and self.current_event_type in self.normalizer.event_filters:
