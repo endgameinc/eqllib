@@ -1,6 +1,5 @@
 """Normalization utilities for EQL compatibility."""
 from __future__ import print_function, unicode_literals
-from contextlib import contextmanager
 import datetime
 from collections import OrderedDict
 import eql
