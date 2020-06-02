@@ -111,9 +111,13 @@ class TestNormalization(unittest.TestCase):
             normalizer.normalize_ast(original)
 
     def test_unmodified_unique_count(self):
-        original = eql.parse_query("""
+        original = """
         process where true | unique_count process_name | filter count < 5
-        """)
+        """
+        self.assert_normalization_match(original, original, source="Endgame Platform")
 
-        normalizer = self.config.normalizers["Endgame Platform"]
-        normalizer.normalize_ast(original)
+    def test_unmodified_endgame(self):
+        original = """
+        process where opcode in (1, 5) and process_name == "net.exe"
+        """
+        self.assert_normalization_match(original, original, source="Endgame Platform")

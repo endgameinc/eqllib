@@ -1,6 +1,5 @@
 """Normalization utilities for EQL compatibility."""
 from __future__ import print_function, unicode_literals
-from contextlib import contextmanager
 import datetime
 from collections import OrderedDict
 import eql
@@ -34,11 +33,6 @@ class QueryNormalizer(DepthFirstWalker):
         if isinstance(node, Expression):
             node = node.optimize()
         return node
-
-    @contextmanager
-    def set_context(self, node):
-        """Replace the original set_context, since we don't need it here."""
-        yield node
 
     def _walk_event_query(self, event_query):
         """Add filter_query to the converted condition."""

@@ -71,7 +71,7 @@ extra_files.extend(relative_glob('sources', '*.toml'))
 
 install_requires = [
     "toml~=0.9",
-    "eql~=0.9",
+    "eql~=0.9.2",
     "jsl~=0.2",
     "jsonschema==2.6.0",
 ]
