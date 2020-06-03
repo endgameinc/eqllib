@@ -80,6 +80,9 @@ test_requires = [
     "pytest~=3.8.2",
     "pytest-cov==2.4",
     "flake8==2.5.1",
+    "configparser<5.0; python_version<'3.4'",
+    "more-itertools~=5.0; python_version<'3.4'",
+    "zipp<1.0; python_version<'3.4'",
 ]
 
 setup(
