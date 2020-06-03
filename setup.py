@@ -55,6 +55,9 @@ class Test(TestCommand):
 
     def run_tests(self):
         """Run pytest."""
+        self.distribution.fetch_build_eggs(test_requires)
+        self.distribution.packages.append('tests')
+
         import pytest
         sys.exit(pytest.main(self.pytest_args))
 
