@@ -75,10 +75,11 @@ install_requires = [
     "jsl~=0.2",
     "jsonschema==2.6.0",
 ]
+
 test_requires = [
-    'pytest~=3.8.2',
-    'pytest-cov~=2.4',
-    'flake8~=2.5.1',
+    "pytest~=3.8.2",
+    "pytest-cov==2.4",
+    "flake8==2.5.1",
 ]
 
 setup(
