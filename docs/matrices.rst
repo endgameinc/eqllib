@@ -8,4 +8,6 @@
    matrices/linux
    matrices/macos
    matrices/windows
+   matrices/macos
+   matrices/linux
 
