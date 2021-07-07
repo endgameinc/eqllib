@@ -1,0 +1,17 @@
+[analytic.metadata]
+categories = ["detect"]
+confidence = "high"
+contributors = ["SBousseaden"]
+created_date = "8/24/2019"
+description = "RDP Tunneling via SSH is a common technique to control interactively compromised systems behind a FW  via RDP Protocol"
+id = "3abf86e1-3ba3-4473-90ea-5fc37ff57d19"
+name = "RDP Tunneling - Logon Event"
+os = ["windows"]
+tactics = ["Lateral Movement", "Connection Proxy"]
+techniques = ["T1076"]
+
+
+[analytic]
+query = '''
+security where event_id==4624 and logon_type==10 and (ip_address=="127.0.*" or ip_address=="::1") and target_user_name!="*$"
+'''
